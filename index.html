@@ -747,8 +747,8 @@
                     <input type="date" id="eventDate" required>
                 </div>
                 <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" id="eventEndDate" required>
+                    <label>End Date (optional)</label>
+                    <input type="date" id="eventEndDate">
                 </div>
                 <div class="form-group">
                     <label>Notes (optional)</label>
@@ -1268,9 +1268,9 @@
         }
 
         function saveBirthdays() {
-            // Save all custom events (birthdays, holidays, EV events, and other custom events)
-            const customEvents = events.filter(e => e.id && e.id.includes('_custom_'));
-            localStorage.setItem('calendarBirthdays', JSON.stringify(customEvents));
+            // Save all user-created events (birthdays, holidays, EV events, and other custom events)
+            const userCreatedEvents = events.filter(e => e.id && (e.id.includes('_custom_') || e.type === 'birthday' || e.type === 'holiday'));
+            localStorage.setItem('calendarBirthdays', JSON.stringify(userCreatedEvents));
         }
 
         function changeView(view) {
@@ -1552,9 +1552,14 @@
             
             const name = document.getElementById('eventName').value;
             const date = document.getElementById('eventDate').value;
-            const endDate = document.getElementById('eventEndDate').value;
+            let endDate = document.getElementById('eventEndDate').value;
             const notes = document.getElementById('eventNotes').value;
             const type = document.getElementById('eventType').value;
+
+            // If end date is not provided, default to start date
+            if (!endDate) {
+                endDate = date;
+            }
             
             const newEvent = {
                 id: type + '_custom_' + Date.now(),
