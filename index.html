@@ -1268,8 +1268,9 @@
         }
 
         function saveBirthdays() {
-            const birthdays = events.filter(e => e.type === 'birthday');
-            localStorage.setItem('calendarBirthdays', JSON.stringify(birthdays));
+            // Save all custom events (birthdays, holidays, EV events, and other custom events)
+            const customEvents = events.filter(e => e.id && e.id.includes('_custom_'));
+            localStorage.setItem('calendarBirthdays', JSON.stringify(customEvents));
         }
 
         function changeView(view) {
