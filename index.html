@@ -1176,6 +1176,8 @@
   }
 ];
 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL5M3oF15jRGdsHiZIe2a-r0th_oh6fQFXuRbmHvV76LD0fS4KjIjqA7a-EBI9-6PeuA/exec';
+
         let events = [...CALENDAR_EVENTS];
         let currentView = 'year';
         let currentYear = 2026;
@@ -1258,24 +1260,67 @@
         }
         currentWeekStart = initialWeekStart;
 
-        // Load saved birthdays from localStorage
-        function loadSavedEvents() {
+        // Fetch custom events from Google Sheet
+        async function loadSavedEvents() {
+            try {
+                console.log('Fetching events from Google Sheet...');
+                const response = await fetch(APPS_SCRIPT_URL);
+                const data = await response.json();
+                if (data.success && data.events) {
+                    console.log('Loaded from sheet:', data.events.length, 'events');
+                    // Cache in localStorage as fallback
+                    localStorage.setItem('calendarBirthdays', JSON.stringify(data.events));
+                    events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...data.events];
+                } else {
+                    console.warn('Sheet fetch failed, using localStorage fallback');
+                    loadFromLocalStorage();
+                }
+            } catch (err) {
+                console.warn('Sheet unavailable, using localStorage fallback:', err);
+                loadFromLocalStorage();
+            }
+            renderCalendar();
+        }
+
+        function loadFromLocalStorage() {
             const saved = localStorage.getItem('calendarBirthdays');
-            console.log('Loading saved events from localStorage:', saved);
             if (saved) {
-                const birthdays = JSON.parse(saved);
-                console.log('Parsed saved events:', birthdays);
-                events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...birthdays];
-                console.log('Total events after loading:', events.length);
-            } else {
-                console.log('No saved events found in localStorage');
+                const cached = JSON.parse(saved);
+                events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...cached];
+            }
+        }
+
+        // Save to Google Sheet (add)
+        async function saveEventToSheet(newEvent) {
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'add', event: newEvent })
+                });
+                console.log('Event saved to sheet');
+            } catch (err) {
+                console.error('Failed to save to sheet:', err);
+            }
+        }
+
+        // Delete from Google Sheet
+        async function deleteEventFromSheet(eventId) {
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'delete', id: eventId })
+                });
+                console.log('Event deleted from sheet');
+            } catch (err) {
+                console.error('Failed to delete from sheet:', err);
             }
         }
 
         function saveBirthdays() {
-            // Save all user-created events (identified by '_custom_' in ID)
+            // Keep localStorage as cache
             const userCreatedEvents = events.filter(e => e.id && e.id.includes('_custom_'));
-            console.log('Saving events to localStorage:', userCreatedEvents);
             localStorage.setItem('calendarBirthdays', JSON.stringify(userCreatedEvents));
         }
 
@@ -1586,7 +1631,8 @@
             events = [...nonUserEvents, newEvent];
             console.log('Events array after adding:', events.length, 'events');
             saveBirthdays();
-            console.log('saveBirthdays() called');
+            saveEventToSheet(newEvent);
+            console.log('Event saved to sheet and localStorage');
 
             closeModal('addModal');
             renderCalendar();
@@ -1673,6 +1719,7 @@
             if (confirm(`Are you sure you want to delete this ${eventTypeName}?`)) {
                 events = events.filter(e => e.id !== eventId);
                 saveBirthdays();
+                deleteEventFromSheet(eventId);
                 closeModal('viewModal');
                 renderCalendar();
             }
@@ -1685,35 +1732,20 @@
         }
 
         // Initialize immediately when script loads
-        (function() {
+        (async function() {
             console.log('Initializing calendar...');
             console.log('Total base events:', CALENDAR_EVENTS.length);
-            
+
             try {
-                // Initialize events
+                // Initialize with base events + office days
                 events = [...CALENDAR_EVENTS, ...generateOfficeDays()];
-                
-                // Load saved birthdays
-                const saved = localStorage.getItem('calendarBirthdays');
-                if (saved) {
-                    const birthdays = JSON.parse(saved);
-                    events = [...events, ...birthdays];
-                }
-                
-                console.log('Total events after loading:', events.length);
-                
-                // Wait for DOM to be ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', function() {
-                        loadSavedEvents();
-                        renderCalendar();
-                        console.log('Calendar rendered successfully');
-                    });
-                } else {
-                    loadSavedEvents();
-                    renderCalendar();
-                    console.log('Calendar rendered successfully');
-                }
+
+                // Show calendar immediately with base events
+                renderCalendar();
+
+                // Then fetch custom events from Google Sheet (async)
+                await loadSavedEvents();
+                console.log('Calendar rendered successfully with', events.length, 'events');
             } catch (error) {
                 console.error('Error initializing calendar:', error);
                 const content = document.getElementById('calendarContent');
