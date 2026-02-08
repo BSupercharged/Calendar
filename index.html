@@ -1261,15 +1261,21 @@
         // Load saved birthdays from localStorage
         function loadSavedEvents() {
             const saved = localStorage.getItem('calendarBirthdays');
+            console.log('Loading saved events from localStorage:', saved);
             if (saved) {
                 const birthdays = JSON.parse(saved);
+                console.log('Parsed saved events:', birthdays);
                 events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...birthdays];
+                console.log('Total events after loading:', events.length);
+            } else {
+                console.log('No saved events found in localStorage');
             }
         }
 
         function saveBirthdays() {
-            // Save all user-created events (birthdays, holidays, EV events, and other custom events)
-            const userCreatedEvents = events.filter(e => e.id && (e.id.includes('_custom_') || e.type === 'birthday' || e.type === 'holiday'));
+            // Save all user-created events (identified by '_custom_' in ID)
+            const userCreatedEvents = events.filter(e => e.id && e.id.includes('_custom_'));
+            console.log('Saving events to localStorage:', userCreatedEvents);
             localStorage.setItem('calendarBirthdays', JSON.stringify(userCreatedEvents));
         }
 
@@ -1549,16 +1555,20 @@
 
         function addEvent(e) {
             e.preventDefault();
-            
+            console.log('addEvent called');
+
             const name = document.getElementById('eventName').value;
             const date = document.getElementById('eventDate').value;
             let endDate = document.getElementById('eventEndDate').value;
             const notes = document.getElementById('eventNotes').value;
             const type = document.getElementById('eventType').value;
 
+            console.log('Event details:', { name, date, endDate, type, notes });
+
             // If end date is not provided, default to start date
             if (!endDate) {
                 endDate = date;
+                console.log('End date was empty, set to:', endDate);
             }
             
             const newEvent = {
@@ -1569,12 +1579,15 @@
                 type: type,
                 notes: notes
             };
-            
+            console.log('Created new event:', newEvent);
+
             // Filter out old event to avoid duplicates, keep office days
             const nonUserEvents = events.filter(e => e.id !== newEvent.id);
             events = [...nonUserEvents, newEvent];
+            console.log('Events array after adding:', events.length, 'events');
             saveBirthdays();
-            
+            console.log('saveBirthdays() called');
+
             closeModal('addModal');
             renderCalendar();
             
