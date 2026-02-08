@@ -1692,10 +1692,12 @@
                 // Wait for DOM to be ready
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', function() {
+                        loadSavedEvents();
                         renderCalendar();
                         console.log('Calendar rendered successfully');
                     });
                 } else {
+                    loadSavedEvents();
                     renderCalendar();
                     console.log('Calendar rendered successfully');
                 }
