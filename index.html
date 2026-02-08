@@ -1176,7 +1176,7 @@
   }
 ];
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL5M3oF15jRGdsHiZIe2a-r0th_oh6fQFXuRbmHvV76LD0fS4KjIjqA7a-EBI9-6PeuA/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9Aoj_XCkUPdp_4YOjDuybqRfLBI9dhY7oiU9c-LzVmWKS6RtyFjkaanOlPR7pJVtlag/exec';
 
         let events = [...CALENDAR_EVENTS];
         let currentView = 'year';
@@ -1264,13 +1264,19 @@
         async function loadSavedEvents() {
             try {
                 console.log('Fetching events from Google Sheet...');
-                const response = await fetch(APPS_SCRIPT_URL);
+                const response = await fetch(APPS_SCRIPT_URL + '?action=list');
                 const data = await response.json();
                 if (data.success && data.events) {
-                    console.log('Loaded from sheet:', data.events.length, 'events');
+                    // Normalize dates from sheet (may come as ISO timestamps)
+                    const sheetEvents = data.events.map(e => ({
+                        ...e,
+                        start: String(e.start).slice(0, 10),
+                        end: String(e.end).slice(0, 10)
+                    }));
+                    console.log('Loaded from sheet:', sheetEvents.length, 'events');
                     // Cache in localStorage as fallback
-                    localStorage.setItem('calendarBirthdays', JSON.stringify(data.events));
-                    events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...data.events];
+                    localStorage.setItem('calendarBirthdays', JSON.stringify(sheetEvents));
+                    events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...sheetEvents];
                 } else {
                     console.warn('Sheet fetch failed, using localStorage fallback');
                     loadFromLocalStorage();
@@ -1293,11 +1299,11 @@
         // Save to Google Sheet (add)
         async function saveEventToSheet(newEvent) {
             try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ action: 'add', event: newEvent })
-                });
+                const params = new URLSearchParams({ action: 'add' });
+                for (const [key, val] of Object.entries(newEvent)) {
+                    if (val) params.set(key, val);
+                }
+                await fetch(APPS_SCRIPT_URL + '?' + params.toString());
                 console.log('Event saved to sheet');
             } catch (err) {
                 console.error('Failed to save to sheet:', err);
@@ -1307,11 +1313,7 @@
         // Delete from Google Sheet
         async function deleteEventFromSheet(eventId) {
             try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ action: 'delete', id: eventId })
-                });
+                await fetch(APPS_SCRIPT_URL + '?action=delete&id=' + encodeURIComponent(eventId));
                 console.log('Event deleted from sheet');
             } catch (err) {
                 console.error('Failed to delete from sheet:', err);
