@@ -1267,11 +1267,22 @@
                 const response = await fetch(APPS_SCRIPT_URL + '?action=list');
                 const data = await response.json();
                 if (data.success && data.events) {
-                    // Normalize dates from sheet (may come as ISO timestamps)
+                    // Normalize dates from sheet (Google Sheets returns ISO timestamps with timezone shift)
+                    function normalizeDate(val) {
+                        const s = String(val);
+                        if (s.includes('T')) {
+                            // Parse as UTC and format as YYYY-MM-DD using UTC components
+                            const d = new Date(s);
+                            // Round to nearest date to handle timezone shifts
+                            d.setUTCHours(d.getUTCHours() + 12);
+                            return d.toISOString().slice(0, 10);
+                        }
+                        return s.slice(0, 10);
+                    }
                     const sheetEvents = data.events.map(e => ({
                         ...e,
-                        start: String(e.start).slice(0, 10),
-                        end: String(e.end).slice(0, 10)
+                        start: normalizeDate(e.start),
+                        end: normalizeDate(e.end)
                     }));
                     console.log('Loaded from sheet:', sheetEvents.length, 'events');
                     // Cache in localStorage as fallback
