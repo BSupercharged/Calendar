@@ -513,6 +513,91 @@
             background: #34495e;
         }
 
+        /* Holiday View Table */
+        .holiday-view {
+            padding: 10px;
+            overflow-x: auto;
+        }
+        .holiday-view h2 {
+            margin-bottom: 16px;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+        .holiday-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+            min-width: 900px;
+        }
+        .holiday-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        .holiday-table th.person-col {
+            text-align: left;
+            min-width: 140px;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+        .holiday-table td {
+            border: 1px solid #dde1e7;
+            padding: 6px 8px;
+            vertical-align: top;
+            min-width: 90px;
+        }
+        .holiday-table td.person-name {
+            font-weight: 600;
+            background: #f4f6f9;
+            color: #2c3e50;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            white-space: nowrap;
+        }
+        .holiday-table tr:nth-child(even) td.person-name {
+            background: #eceff4;
+        }
+        .holiday-table tr:hover td {
+            background: #f0f4ff;
+        }
+        .holiday-table tr:hover td.person-name {
+            background: #dce6f8;
+        }
+        .holiday-chip {
+            display: inline-block;
+            background: #9b59b6;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin: 2px 1px;
+            font-size: 0.78em;
+            white-space: nowrap;
+        }
+        .holiday-chip.multi-day {
+            background: #8e44ad;
+        }
+        .holiday-chip.public-holiday {
+            background: #e67e22;
+        }
+        .holiday-summary {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 4px;
+        }
+        .no-holidays {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -675,6 +760,7 @@
                 <button class="btn btn-secondary active" onclick="changeView('year')">Year</button>
                 <button class="btn btn-secondary" onclick="changeView('month')">Month</button>
                 <button class="btn btn-secondary" onclick="changeView('week')">Week</button>
+                <button class="btn btn-secondary" onclick="changeView('holidays')">Holiday View</button>
             </div>
             
             <div class="navigation">
@@ -1347,7 +1433,7 @@
         }
 
         function navigate(direction) {
-            if (currentView === 'year') {
+            if (currentView === 'year' || currentView === 'holidays') {
                 currentYear += direction;
             } else if (currentView === 'month') {
                 currentMonth += direction;
@@ -1564,11 +1650,129 @@
             document.getElementById('currentPeriod').textContent = `${startStr} - ${endStr}`;
         }
 
+        function renderHolidayView() {
+            const monthNames = ['January','February','March','April','May','June',
+                                'July','August','September','October','November','December'];
+            const shortMonth = ['Jan','Feb','Mar','Apr','May','Jun',
+                                'Jul','Aug','Sep','Oct','Nov','Dec'];
+
+            // Gather employee holidays and public holidays for the current year
+            const yearStr = String(currentYear);
+            const empHolidays = events.filter(e =>
+                e.type === 'employee-holiday' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
+            );
+            const pubHolidays = events.filter(e =>
+                e.type === 'holiday' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
+            );
+
+            // Build unique list of people (from title field of employee-holiday events)
+            const peopleSet = new Set(empHolidays.map(e => e.title));
+            const people = Array.from(peopleSet).sort();
+
+            // Helper: get all days between two date strings inclusive
+            function getDaysInRange(start, end) {
+                const days = [];
+                const s = new Date(start + 'T00:00:00');
+                const e2 = new Date(end + 'T00:00:00');
+                for (let d = new Date(s); d <= e2; d.setDate(d.getDate() + 1)) {
+                    days.push(d.toISOString().slice(0, 10));
+                }
+                return days;
+            }
+
+            // Count holiday days per person per month
+            function getHolidaysForPersonMonth(person, month) {
+                return empHolidays.filter(e => e.title === person).filter(e => {
+                    // Check if any day of this event falls in this month/year
+                    const days = getDaysInRange(e.start, e.end);
+                    return days.some(d => {
+                        const [y, m] = d.split('-');
+                        return parseInt(y) === currentYear && parseInt(m) === month + 1;
+                    });
+                });
+            }
+
+            // Build HTML
+            let html = `<div class="holiday-view">`;
+            html += `<h2>🏖️ Employee Holiday Overview — ${currentYear}</h2>`;
+
+            if (people.length === 0) {
+                html += `<div class="no-holidays">No employee holidays recorded yet.<br>Add holidays using the <strong>+</strong> button and select "Employee Holiday".</div>`;
+            } else {
+                html += `<table class="holiday-table">`;
+                html += `<thead><tr><th class="person-col">Person</th>`;
+                monthNames.forEach(m => { html += `<th>${m}</th>`; });
+                html += `<th>Total Days</th></tr></thead><tbody>`;
+
+                people.forEach(person => {
+                    html += `<tr><td class="person-name">${person}</td>`;
+                    let totalDays = 0;
+
+                    for (let m = 0; m < 12; m++) {
+                        const evts = getHolidaysForPersonMonth(person, m);
+                        if (evts.length === 0) {
+                            html += `<td></td>`;
+                        } else {
+                            html += `<td>`;
+                            evts.forEach(ev => {
+                                const days = getDaysInRange(ev.start, ev.end).filter(d => {
+                                    const [y, mo] = d.split('-');
+                                    return parseInt(y) === currentYear && parseInt(mo) === m + 1;
+                                });
+                                const isMulti = ev.start !== ev.end;
+                                const label = isMulti
+                                    ? `${ev.start.slice(8)}-${ev.end.slice(8)} ${shortMonth[m]}`
+                                    : `${ev.start.slice(8)} ${shortMonth[m]}`;
+                                totalDays += days.length;
+                                html += `<span class="holiday-chip ${isMulti ? 'multi-day' : ''}" title="${ev.notes || ''}">${label} (${days.length}d)</span>`;
+                            });
+                            html += `</td>`;
+                        }
+                    }
+
+                    html += `<td style="text-align:center;font-weight:bold;color:#8e44ad;">${totalDays}</td>`;
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table>`;
+
+                // Public holidays row
+                if (pubHolidays.length > 0) {
+                    html += `<h2 style="margin-top:24px;">🗓️ Public Holidays — ${currentYear}</h2>`;
+                    html += `<table class="holiday-table"><thead><tr><th class="person-col">Holiday</th>`;
+                    monthNames.forEach(m => { html += `<th>${m}</th>`; });
+                    html += `</tr></thead><tbody><tr><td class="person-name">Public Holidays</td>`;
+                    for (let m = 0; m < 12; m++) {
+                        const ph = pubHolidays.filter(e => {
+                            const [, mo] = e.start.split('-');
+                            return parseInt(mo) === m + 1;
+                        });
+                        if (ph.length === 0) {
+                            html += `<td></td>`;
+                        } else {
+                            html += `<td>`;
+                            ph.forEach(e => {
+                                html += `<span class="holiday-chip public-holiday" title="${e.title}">${e.start.slice(8)} ${shortMonth[m]}: ${e.title}</span>`;
+                            });
+                            html += `</td>`;
+                        }
+                    }
+                    html += `</tr></tbody></table>`;
+                }
+            }
+
+            html += `</div>`;
+            document.getElementById('calendarContent').innerHTML = html;
+            document.getElementById('currentPeriod').textContent = currentYear;
+        }
+
         function renderCalendar() {
             if (currentView === 'year') {
                 renderYearView();
             } else if (currentView === 'month') {
                 renderMonthView();
+            } else if (currentView === 'holidays') {
+                renderHolidayView();
             } else {
                 renderWeekView();
             }
