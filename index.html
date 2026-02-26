@@ -1686,6 +1686,18 @@
                 return days;
             }
 
+            // Build a flat set of all public holiday date strings for fast lookup
+            const pubHolidayDates = new Set();
+            pubHolidays.forEach(ph => {
+                getDaysInRange(ph.start, ph.end).forEach(d => pubHolidayDates.add(d));
+            });
+
+            // Helper: true if a date string is a working day (not weekend, not public holiday)
+            function isWorkingDay(dateStr) {
+                const dow = new Date(dateStr + 'T00:00:00').getDay(); // 0=Sun, 6=Sat
+                return dow !== 0 && dow !== 6 && !pubHolidayDates.has(dateStr);
+            }
+
             // Count holiday days per person per month
             function getHolidaysForPersonMonth(person, month) {
                 return empHolidays.filter(e => e.title === person).filter(e => {
@@ -1725,12 +1737,13 @@
                                     const [y, mo] = d.split('-');
                                     return parseInt(y) === currentYear && parseInt(mo) === m + 1;
                                 });
+                                const workingDays = days.filter(isWorkingDay);
                                 const isMulti = ev.start !== ev.end;
                                 const label = isMulti
                                     ? `${ev.start.slice(8)}-${ev.end.slice(8)} ${shortMonth[m]}`
                                     : `${ev.start.slice(8)} ${shortMonth[m]}`;
-                                totalDays += days.length;
-                                html += `<span class="holiday-chip ${isMulti ? 'multi-day' : ''}" title="${ev.notes || ''}">${label} (${days.length}d)</span>`;
+                                totalDays += workingDays.length;
+                                html += `<span class="holiday-chip ${isMulti ? 'multi-day' : ''}" title="${ev.notes || ''}">${label} (${workingDays.length}d)</span>`;
                             });
                             html += `</td>`;
                         }
