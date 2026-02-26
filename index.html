@@ -526,31 +526,34 @@
         .holiday-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85em;
-            min-width: 900px;
+            font-size: 0.78em;
+            table-layout: fixed;
         }
         .holiday-table th {
             background: #2c3e50;
             color: white;
-            padding: 10px 8px;
+            padding: 7px 4px;
             text-align: center;
             font-weight: 600;
             position: sticky;
             top: 0;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .holiday-table th.person-col {
             text-align: left;
-            min-width: 140px;
+            width: 110px;
+            min-width: 80px;
             position: sticky;
             left: 0;
             z-index: 2;
         }
         .holiday-table td {
             border: 1px solid #dde1e7;
-            padding: 6px 8px;
+            padding: 4px 4px;
             vertical-align: top;
-            min-width: 90px;
+            overflow: hidden;
         }
         .holiday-table td.person-name {
             font-weight: 600;
@@ -574,11 +577,14 @@
             display: inline-block;
             background: #9b59b6;
             color: white;
-            border-radius: 4px;
-            padding: 2px 6px;
-            margin: 2px 1px;
-            font-size: 0.78em;
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin: 1px 1px;
+            font-size: 0.85em;
             white-space: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .holiday-chip.multi-day {
             background: #8e44ad;
