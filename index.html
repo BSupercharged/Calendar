@@ -1353,8 +1353,8 @@
                     const isThursday = dayOfWeek === 4;
                     
                     if (isMonday || isThursday) {
-                        // Skip if it's a holiday or Feb 12
-                        if (excludeDates.has(dateStr) || dateStr === '2026-02-12') {
+                        // Skip if it's a holiday, Feb 12, or Mar 12 (moved to Wed)
+                        if (excludeDates.has(dateStr) || dateStr === '2026-02-12' || dateStr === '2026-03-12') {
                             continue;
                         }
                         
@@ -1365,8 +1365,9 @@
                             end: dateStr,
                             type: 'office'
                         });
-                    } else if (dateStr === '2026-02-11') {
-                        // Special case: Feb 11 (Wednesday) instead of Feb 12 (Thursday)
+                    } else if (dateStr === '2026-02-11' || dateStr === '2026-03-11') {
+                        // Special cases: moved to Wednesday instead of Thursday
+                        // Feb 11 instead of Feb 12, Mar 11 instead of Mar 12
                         officeDays.push({
                             id: 'office_' + officeId++,
                             title: 'Office Day',
