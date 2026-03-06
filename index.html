@@ -173,12 +173,30 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .legend-item:hover {
+            background: rgba(0,0,0,0.06);
+        }
+        .legend-item.active {
+            border-color: currentColor;
+            background: rgba(0,0,0,0.07);
+            font-weight: 600;
+        }
+        .legend-item.dimmed {
+            opacity: 0.35;
         }
 
         .legend-color {
             width: 20px;
             height: 20px;
             border-radius: 4px;
+            flex-shrink: 0;
         }
 
         .calendar-content {
@@ -826,27 +844,27 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item">
+            <div class="legend-item" data-type="event" onclick="toggleFilter('event')" title="Click to filter">
                 <div class="legend-color" style="background: #667eea;"></div>
                 <span>EV Events</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="holiday" onclick="toggleFilter('holiday')" title="Click to filter">
                 <div class="legend-color" style="background: #e74c3c;"></div>
                 <span>Dutch Holidays</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="birthday" onclick="toggleFilter('birthday')" title="Click to filter">
                 <div class="legend-color" style="background: #f39c12;"></div>
                 <span>Birthdays</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="office" onclick="toggleFilter('office')" title="Click to filter">
                 <div class="legend-color" style="background: #27ae60;"></div>
                 <span>Office Days</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="employee-holiday" onclick="toggleFilter('employee-holiday')" title="Click to filter">
                 <div class="legend-color" style="background: #9b59b6;"></div>
                 <span>Employee Holidays</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="other" onclick="toggleFilter('other')" title="Click to filter">
                 <div class="legend-color" style="background: #34495e;"></div>
                 <span>Other</span>
             </div>
@@ -1315,6 +1333,7 @@
         let currentYear = 2026;
         let currentMonth = 0; // January
         let currentWeekStart = new Date(2026, 0, 1);
+        let activeFilter = null; // type string when a legend filter is active
 
         // Generate office days for 2026
         function generateOfficeDays() {
@@ -1497,15 +1516,29 @@
             renderCalendar();
         }
 
+        function toggleFilter(type) {
+            activeFilter = activeFilter === type ? null : type;
+            // Update legend item styles
+            document.querySelectorAll('.legend-item[data-type]').forEach(el => {
+                el.classList.remove('active', 'dimmed');
+                if (activeFilter) {
+                    el.dataset.type === activeFilter
+                        ? el.classList.add('active')
+                        : el.classList.add('dimmed');
+                }
+            });
+            renderCalendar();
+        }
+
         function getEventsForDate(date) {
             // Normalize to local date string for comparison (YYYY-MM-DD)
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
-            
+
             return events.filter(event => {
-                // Compare date strings directly to avoid timezone issues
+                if (activeFilter && event.type !== activeFilter) return false;
                 return event.start <= dateStr && event.end >= dateStr;
             });
         }
