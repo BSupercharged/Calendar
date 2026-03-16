@@ -1773,12 +1773,16 @@
             const people = Array.from(peopleSet).sort();
 
             // Helper: get all days between two date strings inclusive
+            // Uses local date components to avoid UTC timezone offset shifting dates
             function getDaysInRange(start, end) {
                 const days = [];
                 const s = new Date(start + 'T00:00:00');
                 const e2 = new Date(end + 'T00:00:00');
                 for (let d = new Date(s); d <= e2; d.setDate(d.getDate() + 1)) {
-                    days.push(d.toISOString().slice(0, 10));
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const dy = String(d.getDate()).padStart(2, '0');
+                    days.push(`${y}-${m}-${dy}`);
                 }
                 return days;
             }
