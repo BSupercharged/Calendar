@@ -661,6 +661,22 @@
             ) !important;
             background-blend-mode: overlay;
         }
+        /* Custom tooltip */
+        #cal-tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: #2c3e50;
+            color: #fff;
+            padding: 7px 11px;
+            border-radius: 7px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            z-index: 99999;
+            display: none;
+            max-width: 280px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            white-space: pre-line;
+        }
         .total-col {
             min-width: 44px;
             text-align: center;
@@ -1779,6 +1795,20 @@
                 return dow !== 0 && dow !== 6 && !pubHolidayDates.has(dateStr);
             }
 
+            // Helpers for tooltip formatting
+            const fullMonthNames = ['January','February','March','April','May','June',
+                                    'July','August','September','October','November','December'];
+            const wkDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+            function ordinalDate(dateStr) {
+                const dt = new Date(dateStr + 'T00:00:00');
+                const n = dt.getDate();
+                const suffix = (n === 1 || n === 21 || n === 31) ? 'st' :
+                               (n === 2 || n === 22) ? 'nd' :
+                               (n === 3 || n === 23) ? 'rd' : 'th';
+                return `${n}${suffix} ${fullMonthNames[dt.getMonth()]}`;
+            }
+
             // ISO week number for a date string
             function getISOWeek(dateStr) {
                 const d = new Date(dateStr + 'T00:00:00');
@@ -1855,9 +1885,6 @@
                     html += `<tr><td class="person-name">${person}</td>`;
                     let totalDays = 0;
 
-                    const wkDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-                    const wkMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
                     weeks.forEach(wk => {
                         // Count unique working days in this week covered by any of person's holidays
                         const coveredDays = new Set();
@@ -1880,39 +1907,36 @@
                         if (cnt === 0 && phThisWeek.length === 0) {
                             html += `<td class="week-cell"></td>`;
                         } else {
-                            // Build weekday label for tooltip
+                            // Build weekday label: "Mon–Fri", "Mon, Tue, Wed", etc.
                             const sortedDays = Array.from(coveredDays).sort();
                             let dayLabel = '';
                             if (cnt === 5) {
                                 dayLabel = 'Mon–Fri';
-                            } else if (cnt === 4) {
-                                // Show which day is missing
-                                const taken = new Set(sortedDays.map(d => new Date(d+'T00:00:00').getDay()));
-                                dayLabel = sortedDays.map(d => wkDayNames[new Date(d+'T00:00:00').getDay()]).join(', ');
                             } else if (cnt > 0) {
-                                dayLabel = sortedDays.map(d => {
-                                    const dt = new Date(d + 'T00:00:00');
-                                    return `${wkDayNames[dt.getDay()]} ${dt.getDate()}`;
-                                }).join(', ');
+                                dayLabel = sortedDays.map(d =>
+                                    `${wkDayNames[new Date(d+'T00:00:00').getDay()]} ${ordinalDate(d)}`
+                                ).join('\n');
                             }
 
-                            // Note any public holidays that fell inside the booked period
+                            // Public holiday note using full date + name
                             let phNote = '';
                             if (phThisWeek.length > 0) {
                                 const phStr = phThisWeek.map(d => {
-                                    const dt = new Date(d + 'T00:00:00');
-                                    return `${wkDayNames[dt.getDay()]} ${dt.getDate()} ${wkMonthNames[dt.getMonth()]}`;
-                                }).join(', ');
-                                phNote = ` (excl. PH: ${phStr})`;
+                                    const phEvent = pubHolidays.find(ph => ph.start <= d && ph.end >= d);
+                                    return phEvent
+                                        ? `${phEvent.title} — ${ordinalDate(d)}`
+                                        : ordinalDate(d);
+                                }).join('\n');
+                                phNote = `\nexcl. public holiday:\n${phStr}`;
                             }
 
                             const tooltip = cnt > 0
-                                ? `W${wk.w}: ${dayLabel} — ${cnt} working day${cnt > 1 ? 's' : ''}${phNote}`
-                                : `W${wk.w}: PH only${phNote}`;
+                                ? `W${wk.w}: ${cnt} working day${cnt > 1 ? 's' : ''}\n${dayLabel}${phNote}`
+                                : `W${wk.w}${phNote}`;
 
                             const alpha = cnt > 0 ? (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2) : '0.12';
                             const phClass = phThisWeek.length > 0 ? ' ph-overlap' : '';
-                            html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" title="${tooltip}">${cnt > 0 ? cnt : ''}</td>`;
+                            html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt > 0 ? cnt : ''}</td>`;
                         }
                     });
 
@@ -2145,6 +2169,31 @@
                 // Then fetch custom events from Google Sheet (async)
                 await loadSavedEvents();
                 console.log('Calendar rendered successfully with', events.length, 'events');
+
+                // Custom tooltip — replaces unreliable title attribute
+                const tipEl = document.createElement('div');
+                tipEl.id = 'cal-tooltip';
+                document.body.appendChild(tipEl);
+
+                document.addEventListener('mouseover', e => {
+                    const el = e.target.closest('[data-tooltip]');
+                    if (!el) return;
+                    tipEl.textContent = el.dataset.tooltip;
+                    tipEl.style.display = 'block';
+                });
+                document.addEventListener('mousemove', e => {
+                    if (tipEl.style.display === 'block') {
+                        const x = Math.min(e.clientX + 14, window.innerWidth - 295);
+                        const y = Math.max(e.clientY - 44, 6);
+                        tipEl.style.left = x + 'px';
+                        tipEl.style.top  = y + 'px';
+                    }
+                });
+                document.addEventListener('mouseout', e => {
+                    if (!e.relatedTarget || !e.relatedTarget.closest('[data-tooltip]')) {
+                        tipEl.style.display = 'none';
+                    }
+                });
             } catch (error) {
                 console.error('Error initializing calendar:', error);
                 const content = document.getElementById('calendarContent');
