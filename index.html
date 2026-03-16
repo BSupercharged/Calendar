@@ -1904,7 +1904,8 @@
                             personHols.some(ev => d >= ev.start && d <= ev.end)
                         );
 
-                        if (cnt === 0 && phThisWeek.length === 0) {
+                        if (cnt === 0) {
+                            // Nothing to show — either no holiday or only PHs (which everyone has off)
                             html += `<td class="week-cell"></td>`;
                         } else {
                             // Build weekday label: "Mon–Fri", "Mon, Tue, Wed", etc.
@@ -1912,7 +1913,7 @@
                             let dayLabel = '';
                             if (cnt === 5) {
                                 dayLabel = 'Mon–Fri';
-                            } else if (cnt > 0) {
+                            } else {
                                 dayLabel = sortedDays.map(d =>
                                     `${wkDayNames[new Date(d+'T00:00:00').getDay()]} ${ordinalDate(d)}`
                                 ).join('\n');
@@ -1930,13 +1931,10 @@
                                 phNote = `\nexcl. public holiday:\n${phStr}`;
                             }
 
-                            const tooltip = cnt > 0
-                                ? `W${wk.w}: ${cnt} working day${cnt > 1 ? 's' : ''}\n${dayLabel}${phNote}`
-                                : `W${wk.w}${phNote}`;
-
-                            const alpha = cnt > 0 ? (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2) : '0.12';
+                            const tooltip = `W${wk.w}: ${cnt} working day${cnt > 1 ? 's' : ''}\n${dayLabel}${phNote}`;
+                            const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
                             const phClass = phThisWeek.length > 0 ? ' ph-overlap' : '';
-                            html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt > 0 ? cnt : ''}</td>`;
+                            html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
                         }
                     });
 
