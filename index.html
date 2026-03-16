@@ -1912,18 +1912,11 @@
                             // Nothing to show — either no holiday or only PHs (which everyone has off)
                             html += `<td class="week-cell"></td>`;
                         } else {
-                            // Build weekday label: "Mon–Fri", "Mon, Tue, Wed", etc.
+                            // List just the holiday dates
                             const sortedDays = Array.from(coveredDays).sort();
-                            let dayLabel = '';
-                            if (cnt === 5) {
-                                dayLabel = 'Mon–Fri';
-                            } else {
-                                dayLabel = sortedDays.map(d =>
-                                    `${wkDayNames[new Date(d+'T00:00:00').getDay()]} ${ordinalDate(d)}`
-                                ).join('\n');
-                            }
+                            const dateList = sortedDays.map(d => ordinalDate(d)).join('\n');
 
-                            // Public holiday note using full date + name
+                            // Public holiday note
                             let phNote = '';
                             if (phThisWeek.length > 0) {
                                 const phStr = phThisWeek.map(d => {
@@ -1935,7 +1928,7 @@
                                 phNote = `\nexcl. public holiday:\n${phStr}`;
                             }
 
-                            const tooltip = `W${wk.w}: ${cnt} working day${cnt > 1 ? 's' : ''}\n${dayLabel}${phNote}`;
+                            const tooltip = `W${wk.w}\n${dateList}${phNote}`;
                             const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
                             const phClass = phThisWeek.length > 0 ? ' ph-overlap' : '';
                             html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
