@@ -650,6 +650,17 @@
             color: white;
             font-weight: 700;
         }
+        .holiday-week.ph-overlap {
+            /* Subtle diagonal stripe to flag a public holiday fell inside booked period */
+            background-image: repeating-linear-gradient(
+                135deg,
+                rgba(255,255,255,0.18) 0px,
+                rgba(255,255,255,0.18) 2px,
+                transparent 2px,
+                transparent 6px
+            ) !important;
+            background-blend-mode: overlay;
+        }
         .total-col {
             min-width: 44px;
             text-align: center;
@@ -1844,6 +1855,9 @@
                     html += `<tr><td class="person-name">${person}</td>`;
                     let totalDays = 0;
 
+                    const wkDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                    const wkMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
                     weeks.forEach(wk => {
                         // Count unique working days in this week covered by any of person's holidays
                         const coveredDays = new Set();
@@ -1856,12 +1870,49 @@
                         });
                         const cnt = coveredDays.size;
                         totalDays += cnt;
-                        if (cnt === 0) {
+
+                        // Public holidays that fall inside this person's booked period this week
+                        const phThisWeek = wk.days.filter(d =>
+                            pubHolidayDates.has(d) &&
+                            personHols.some(ev => d >= ev.start && d <= ev.end)
+                        );
+
+                        if (cnt === 0 && phThisWeek.length === 0) {
                             html += `<td class="week-cell"></td>`;
                         } else {
-                            // Colour intensity based on fraction of week taken (max 5 working days)
-                            const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
-                            html += `<td class="week-cell holiday-week" style="background:rgba(142,68,173,${alpha})" title="W${wk.w}: ${cnt} day${cnt > 1 ? 's' : ''}">${cnt}</td>`;
+                            // Build weekday label for tooltip
+                            const sortedDays = Array.from(coveredDays).sort();
+                            let dayLabel = '';
+                            if (cnt === 5) {
+                                dayLabel = 'Mon–Fri';
+                            } else if (cnt === 4) {
+                                // Show which day is missing
+                                const taken = new Set(sortedDays.map(d => new Date(d+'T00:00:00').getDay()));
+                                dayLabel = sortedDays.map(d => wkDayNames[new Date(d+'T00:00:00').getDay()]).join(', ');
+                            } else if (cnt > 0) {
+                                dayLabel = sortedDays.map(d => {
+                                    const dt = new Date(d + 'T00:00:00');
+                                    return `${wkDayNames[dt.getDay()]} ${dt.getDate()}`;
+                                }).join(', ');
+                            }
+
+                            // Note any public holidays that fell inside the booked period
+                            let phNote = '';
+                            if (phThisWeek.length > 0) {
+                                const phStr = phThisWeek.map(d => {
+                                    const dt = new Date(d + 'T00:00:00');
+                                    return `${wkDayNames[dt.getDay()]} ${dt.getDate()} ${wkMonthNames[dt.getMonth()]}`;
+                                }).join(', ');
+                                phNote = ` (excl. PH: ${phStr})`;
+                            }
+
+                            const tooltip = cnt > 0
+                                ? `W${wk.w}: ${dayLabel} — ${cnt} working day${cnt > 1 ? 's' : ''}${phNote}`
+                                : `W${wk.w}: PH only${phNote}`;
+
+                            const alpha = cnt > 0 ? (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2) : '0.12';
+                            const phClass = phThisWeek.length > 0 ? ' ph-overlap' : '';
+                            html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(142,68,173,${alpha})" title="${tooltip}">${cnt > 0 ? cnt : ''}</td>`;
                         }
                     });
 
