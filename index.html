@@ -919,6 +919,7 @@
                         <option value="birthday">Birthday</option>
                         <option value="employee-holiday">Employee Holiday</option>
                         <option value="event">EV Event</option>
+                        <option value="office">Office Day</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -1999,15 +2000,27 @@
             if (type === 'birthday') {
                 nameLabel.textContent = 'Name';
                 nameInput.placeholder = 'Team member name';
+                nameInput.value = '';
+                nameInput.readOnly = false;
             } else if (type === 'employee-holiday') {
                 nameLabel.textContent = 'Employee Name';
                 nameInput.placeholder = 'Who is taking holiday?';
+                nameInput.value = '';
+                nameInput.readOnly = false;
             } else if (type === 'event') {
                 nameLabel.textContent = 'Event Name';
                 nameInput.placeholder = 'e.g., EV Conference, Trade Show';
+                nameInput.value = '';
+                nameInput.readOnly = false;
+            } else if (type === 'office') {
+                nameLabel.textContent = 'Title';
+                nameInput.value = 'Office Day';
+                nameInput.readOnly = true;
             } else if (type === 'other') {
                 nameLabel.textContent = 'Event Name';
                 nameInput.placeholder = 'e.g., Company Meeting, Training';
+                nameInput.value = '';
+                nameInput.readOnly = false;
             }
         }
 
@@ -2135,6 +2148,8 @@
                 eventTypeName = 'employee holiday';
             } else if (event.type === 'event') {
                 eventTypeName = 'EV event';
+            } else if (event.type === 'office') {
+                eventTypeName = 'office day';
             } else if (event.type === 'other') {
                 eventTypeName = 'event';
             }
