@@ -867,7 +867,10 @@
                 <button class="nav-btn" onclick="navigate(1)">→</button>
             </div>
 
-            <button class="btn btn-primary" onclick="openAddModal()">+ Add Event</button>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="openAddModal()">+ Add Event</button>
+                <button class="btn btn-secondary" onclick="openOfficeSettings()" title="Configure office days">⚙ Office Days</button>
+            </div>
         </div>
 
         <div class="legend">
@@ -952,6 +955,45 @@
                 <button class="close-btn" onclick="closeModal('viewModal')">&times;</button>
             </div>
             <div id="viewEventContent"></div>
+        </div>
+    </div>
+
+    <!-- Office Days Settings Modal -->
+    <div class="modal" id="officeSettingsModal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h2>⚙ Office Days Settings</h2>
+                <button class="close-btn" onclick="closeModal('officeSettingsModal')">&times;</button>
+            </div>
+
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Regular office days (every week):</label>
+                <div id="weekdayToggles" style="display:flex;gap:8px;flex-wrap:wrap;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Excluded dates <span style="font-weight:400;color:#888;">(skip these dates)</span>:</label>
+                <div id="excludeList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <input type="date" id="newExcludeDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExcludeDate()" style="padding:8px 16px;">+ Add</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Extra dates <span style="font-weight:400;color:#888;">(one-off office days)</span>:</label>
+                <div id="extraList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <input type="date" id="newExtraDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExtraDate()" style="padding:8px 16px;">+ Add</button>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:18px;">
+                <button class="btn btn-primary" onclick="applyOfficeSettings()" style="flex:1;">Save & Apply</button>
+                <button class="btn btn-delete" onclick="resetOfficeSettings()" style="flex:0;white-space:nowrap;">Reset to Defaults</button>
+            </div>
         </div>
     </div>
 
@@ -1363,58 +1405,76 @@
         let currentWeekStart = new Date(2026, 0, 1);
         let activeFilter = null; // type string when a legend filter is active
 
-        // Generate office days for 2026
+        // ═══════════════════════════════════════════════════════════════
+        // OFFICE DAYS CONFIGURATION — Edit this section to change office days
+        // ═══════════════════════════════════════════════════════════════
+        //
+        // officeDaysOfWeek : which weekdays are office days
+        //   0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday,
+        //   4 = Thursday, 5 = Friday, 6 = Saturday
+        //
+        // excludeDates : specific dates to SKIP (e.g. holidays, bridges)
+        //
+        // extraDates : one-off dates to ADD (e.g. a moved office day)
+        //
+        // All changes are saved to localStorage so they persist.
+        // ═══════════════════════════════════════════════════════════════
+
+        const DEFAULT_OFFICE_CONFIG = {
+            officeDaysOfWeek: [1, 4],          // Monday & Thursday
+            excludeDates: [
+                '2026-01-01',  // New Year's Day
+                '2026-01-02',  // Day after New Year
+                '2026-02-12',  // Moved to Wed 11th
+                '2026-03-12',  // Moved to Wed 11th
+                '2026-04-06',  // Easter Monday
+                '2026-04-27',  // King's Day
+                '2026-05-14',  // Ascension Day
+                '2026-05-25',  // Whit Monday
+                '2026-12-25',  // Christmas Day
+                '2026-12-28',  // Monday after Boxing Day
+            ],
+            extraDates: [
+                '2026-02-11',  // Wed — replaces Thu 12th
+                '2026-03-11',  // Wed — replaces Thu 12th
+            ]
+        };
+
+        function loadOfficeConfig() {
+            const saved = localStorage.getItem('officeConfig');
+            if (saved) {
+                try { return JSON.parse(saved); } catch(e) { /* fall through */ }
+            }
+            return { ...DEFAULT_OFFICE_CONFIG };
+        }
+        function saveOfficeConfig(cfg) {
+            localStorage.setItem('officeConfig', JSON.stringify(cfg));
+        }
+
+        let officeConfig = loadOfficeConfig();
+
+        // Generate office days from config
         function generateOfficeDays() {
+            const cfg = officeConfig;
             const officeDays = [];
-            
-            // List of dates to exclude (holidays)
-            const excludeDates = new Set([
-                '2026-01-01', // New Year's Day (Thursday)
-                '2026-01-02', // Day after New Year
-                '2026-04-06', // Easter Monday
-                '2026-04-27', // King's Day
-                '2026-05-14', // Ascension Day (Thursday)
-                '2026-05-25', // Whit Monday
-                '2026-12-25', // Christmas Day
-                '2026-12-28', // Monday after Boxing Day
-            ]);
-            
+            const excludeSet = new Set(cfg.excludeDates || []);
+            const extraSet = new Set(cfg.extraDates || []);
+            const weekdays = new Set(cfg.officeDaysOfWeek || []);
             let officeId = 1;
-            
-            // Generate for each month
+
             for (let month = 0; month < 12; month++) {
                 const daysInMonth = new Date(2026, month + 1, 0).getDate();
-                
                 for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(2026, month, day);
-                    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-                    
-                    // Format date as YYYY-MM-DD
-                    const year = date.getFullYear();
-                    const monthStr = String(date.getMonth() + 1).padStart(2, '0');
-                    const dayStr = String(date.getDate()).padStart(2, '0');
-                    const dateStr = `${year}-${monthStr}-${dayStr}`;
-                    
-                    // Check if it's Monday (1) or Thursday (4)
-                    const isMonday = dayOfWeek === 1;
-                    const isThursday = dayOfWeek === 4;
-                    
-                    if (isMonday || isThursday) {
-                        // Skip if it's a holiday, Feb 12, or Mar 12 (moved to Wed)
-                        if (excludeDates.has(dateStr) || dateStr === '2026-02-12' || dateStr === '2026-03-12') {
-                            continue;
-                        }
-                        
-                        officeDays.push({
-                            id: 'office_' + officeId++,
-                            title: 'Office Day',
-                            start: dateStr,
-                            end: dateStr,
-                            type: 'office'
-                        });
-                    } else if (dateStr === '2026-02-11' || dateStr === '2026-03-11') {
-                        // Special cases: moved to Wednesday instead of Thursday
-                        // Feb 11 instead of Feb 12, Mar 11 instead of Mar 12
+                    const dayOfWeek = date.getDay();
+                    const monthStr = String(month + 1).padStart(2, '0');
+                    const dayStr = String(day).padStart(2, '0');
+                    const dateStr = `2026-${monthStr}-${dayStr}`;
+
+                    const isRegularDay = weekdays.has(dayOfWeek) && !excludeSet.has(dateStr);
+                    const isExtraDay = extraSet.has(dateStr);
+
+                    if (isRegularDay || isExtraDay) {
                         officeDays.push({
                             id: 'office_' + officeId++,
                             title: 'Office Day',
@@ -1425,7 +1485,6 @@
                     }
                 }
             }
-            
             return officeDays;
         }
 
@@ -1990,6 +2049,114 @@
             document.getElementById('eventDate').valueAsDate = new Date();
             document.getElementById('eventType').value = 'birthday';
             updateFormForType();
+        }
+
+        // ─── Office Settings UI ────────────────────────────────────
+        let tempOfficeConfig = null;
+
+        function openOfficeSettings() {
+            tempOfficeConfig = JSON.parse(JSON.stringify(officeConfig));
+            renderOfficeSettingsUI();
+            document.getElementById('officeSettingsModal').classList.add('active');
+        }
+
+        function renderOfficeSettingsUI() {
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const container = document.getElementById('weekdayToggles');
+            container.innerHTML = '';
+            dayNames.forEach((name, idx) => {
+                const active = tempOfficeConfig.officeDaysOfWeek.includes(idx);
+                const btn = document.createElement('button');
+                btn.textContent = name;
+                btn.className = 'btn ' + (active ? 'btn-primary' : 'btn-secondary');
+                btn.style.cssText = 'padding:8px 14px;min-width:52px;font-size:13px;';
+                btn.onclick = () => {
+                    if (active) {
+                        tempOfficeConfig.officeDaysOfWeek = tempOfficeConfig.officeDaysOfWeek.filter(d => d !== idx);
+                    } else {
+                        tempOfficeConfig.officeDaysOfWeek.push(idx);
+                        tempOfficeConfig.officeDaysOfWeek.sort();
+                    }
+                    renderOfficeSettingsUI();
+                };
+                container.appendChild(btn);
+            });
+
+            // Exclude dates list
+            const exList = document.getElementById('excludeList');
+            if (tempOfficeConfig.excludeDates.length === 0) {
+                exList.innerHTML = '<div style="color:#aaa;font-style:italic;padding:4px 0;">None</div>';
+            } else {
+                exList.innerHTML = tempOfficeConfig.excludeDates.map((d, i) =>
+                    `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:${i%2?'#f8f9fa':'white'};border-radius:4px;">
+                        <span style="font-size:13px;">${d}</span>
+                        <button onclick="removeExcludeDate(${i})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;padding:2px 6px;">✕</button>
+                    </div>`
+                ).join('');
+            }
+
+            // Extra dates list
+            const extList = document.getElementById('extraList');
+            if (tempOfficeConfig.extraDates.length === 0) {
+                extList.innerHTML = '<div style="color:#aaa;font-style:italic;padding:4px 0;">None</div>';
+            } else {
+                extList.innerHTML = tempOfficeConfig.extraDates.map((d, i) =>
+                    `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:${i%2?'#f8f9fa':'white'};border-radius:4px;">
+                        <span style="font-size:13px;">${d}</span>
+                        <button onclick="removeExtraDate(${i})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;padding:2px 6px;">✕</button>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        function addExcludeDate() {
+            const input = document.getElementById('newExcludeDate');
+            const val = input.value;
+            if (val && !tempOfficeConfig.excludeDates.includes(val)) {
+                tempOfficeConfig.excludeDates.push(val);
+                tempOfficeConfig.excludeDates.sort();
+                input.value = '';
+                renderOfficeSettingsUI();
+            }
+        }
+        function removeExcludeDate(idx) {
+            tempOfficeConfig.excludeDates.splice(idx, 1);
+            renderOfficeSettingsUI();
+        }
+
+        function addExtraDate() {
+            const input = document.getElementById('newExtraDate');
+            const val = input.value;
+            if (val && !tempOfficeConfig.extraDates.includes(val)) {
+                tempOfficeConfig.extraDates.push(val);
+                tempOfficeConfig.extraDates.sort();
+                input.value = '';
+                renderOfficeSettingsUI();
+            }
+        }
+        function removeExtraDate(idx) {
+            tempOfficeConfig.extraDates.splice(idx, 1);
+            renderOfficeSettingsUI();
+        }
+
+        function applyOfficeSettings() {
+            officeConfig = JSON.parse(JSON.stringify(tempOfficeConfig));
+            saveOfficeConfig(officeConfig);
+            // Rebuild events with new office days
+            const nonOfficeEvents = events.filter(e => e.type !== 'office' || (e.id && e.id.includes('_custom_')));
+            events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...nonOfficeEvents.filter(e => !CALENDAR_EVENTS.includes(e) && e.type !== 'office')];
+            // Re-merge: base events + new office days + user-created events
+            const userEvents = events.filter(e => e.id && e.id.includes('_custom_'));
+            events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...userEvents];
+            closeModal('officeSettingsModal');
+            renderCalendar();
+        }
+
+        function resetOfficeSettings() {
+            if (confirm('Reset office days to defaults (Monday & Thursday)?')) {
+                tempOfficeConfig = JSON.parse(JSON.stringify(DEFAULT_OFFICE_CONFIG));
+                renderOfficeSettingsUI();
+            }
         }
 
         function updateFormForType() {
