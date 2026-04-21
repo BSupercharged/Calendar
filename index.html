@@ -1829,7 +1829,9 @@
                 e.type === 'holiday' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
             );
 
-            const peopleSet = new Set(empHolidays.map(e => e.title));
+            // Permanent team members — always shown even without holidays booked
+            const TEAM_MEMBERS = ['Irene', 'Altug'];
+            const peopleSet = new Set([...TEAM_MEMBERS, ...empHolidays.map(e => e.title)]);
             const people = Array.from(peopleSet).sort();
 
             // Helper: get all days between two date strings inclusive
@@ -1919,10 +1921,15 @@
             });
 
             // Build HTML
+            // Determine current ISO week for highlighting
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const currentISOWeek = getISOWeek(todayStr);
+            const isCurrentYear = currentYear === new Date().getFullYear();
+
             let html = `<div class="holiday-view">`;
             html += `<h2>🏖️ Employee Holiday Overview — ${currentYear}</h2>`;
 
-            if (people.length === 0) {
+            if (people.length === 0 && empHolidays.length === 0) {
                 html += `<div class="no-holidays">No employee holidays recorded yet.<br>Add holidays using the <strong>+</strong> button and select "Employee Holiday".</div>`;
             } else {
                 html += `<div style="overflow-x:auto;">`;
@@ -1939,7 +1946,9 @@
                 // Row 2: ISO week numbers
                 html += `<tr>`;
                 weeks.forEach(wk => {
-                    html += `<th class="week-num-header">W${wk.w}</th>`;
+                    const isThisWeek = isCurrentYear && wk.w === currentISOWeek;
+                    const weekStyle = isThisWeek ? ' style="background:#ffd700;color:#2c3e50;"' : '';
+                    html += `<th class="week-num-header"${weekStyle}>W${wk.w}</th>`;
                 });
                 html += `</tr>`;
                 html += `</thead><tbody>`;
@@ -1970,7 +1979,8 @@
 
                         if (cnt === 0) {
                             // Nothing to show — either no holiday or only PHs (which everyone has off)
-                            html += `<td class="week-cell"></td>`;
+                            const cwBg = (isCurrentYear && wk.w === currentISOWeek) ? ' style="background:rgba(255,215,0,0.18);"' : '';
+                            html += `<td class="week-cell"${cwBg}></td>`;
                         } else {
                             // Show as date range if consecutive, otherwise list individually
                             const sortedDays = Array.from(coveredDays).sort();
