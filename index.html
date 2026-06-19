@@ -2075,7 +2075,7 @@
                                 const dateLabel = sortedDays.length > 1
                                     ? `${ordinalDate(sortedDays[0])} - ${ordinalDate(sortedDays[sortedDays.length - 1])}`
                                     : ordinalDate(sortedDays[0]);
-                                const tooltip = `W${wk.w} ${dateLabel}`;
+                                const tooltip = `${person} WFH — ${dateLabel}`;
                                 const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
                                 html += `<td class="week-cell holiday-week" style="background:rgba(23,162,184,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
                             }
