@@ -295,6 +295,10 @@
             background: #34495e;
         }
 
+        .mini-day.has-event.wfh {
+            background: #17a2b8;
+        }
+
         .mini-day.has-event.multiple {
             background: linear-gradient(135deg, #667eea 0%, #e74c3c 50%, #f39c12 100%);
         }
@@ -449,6 +453,10 @@
             background: #34495e;
         }
 
+        .event-badge.wfh {
+            background: #17a2b8;
+        }
+
         /* Week View */
         .week-view {
             background: white;
@@ -529,6 +537,10 @@
 
         .week-event.other {
             background: #34495e;
+        }
+
+        .week-event.wfh {
+            background: #17a2b8;
         }
 
         /* Holiday View Table */
@@ -923,6 +935,7 @@
                         <option value="employee-holiday">Employee Holiday</option>
                         <option value="event">EV Event</option>
                         <option value="office">Office Day</option>
+                        <option value="wfh">WFH (Abroad)</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -1490,8 +1503,43 @@
             return officeDays;
         }
 
+
+        // Generate WFH (Abroad) days for 2026 (Tuesday, Wednesday, Friday)
+        function generateWFHDays() {
+            const wfhDays = [];
+            const excludeDates = new Set([
+                '2026-01-01', '2026-01-02',
+                '2026-04-03', '2026-04-06',
+                '2026-04-27',
+                '2026-05-14', '2026-05-25',
+                '2026-12-25', '2026-12-28',
+            ]);
+            let wfhId = 1;
+            for (let month = 0; month < 12; month++) {
+                const daysInMonth = new Date(2026, month + 1, 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(2026, month, day);
+                    const dayOfWeek = date.getDay();
+                    const year = date.getFullYear();
+                    const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+                    const dayStr = String(date.getDate()).padStart(2, '0');
+                    const dateStr = `${year}-${monthStr}-${dayStr}`;
+                    // Tuesday=2, Wednesday=3, Friday=5
+                    if ((dayOfWeek === 2 || dayOfWeek === 3 || dayOfWeek === 5) && !excludeDates.has(dateStr)) {
+                        wfhDays.push({
+                            id: 'wfh_' + wfhId++,
+                            title: 'WFH (Abroad)',
+                            start: dateStr,
+                            end: dateStr,
+                            type: 'wfh'
+                        });
+                    }
+                }
+            }
+            return wfhDays;
+        }
         // Add office days to events
-        events = [...CALENDAR_EVENTS, ...generateOfficeDays()];
+        events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...generateWFHDays()];
         
         // Set initial week start to first Monday of 2026
         let initialWeekStart = new Date(2026, 0, 1);
@@ -2300,6 +2348,15 @@
                     content += `<p><strong>📝 Notes:</strong> ${event.notes}</p>`;
                 }
                 content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete Employee Holiday</button>`;
+            } else if (event.type === 'wfh') {
+                content += `<p><strong>✈️ WFH (Abroad):</strong> ${formatDate(event.start)}</p>`;
+                content += `<p>Working from abroad</p>`;
+                if (event.notes) {
+                    content += `<p><strong>📝 Notes:</strong> ${event.notes}</p>`;
+                }
+                if (event.id.includes('_custom_')) {
+                    content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete WFH (Abroad)</button>`;
+                }
             } else if (event.type === 'office') {
                 content += `<p><strong>🏢 Office Day:</strong> ${formatDate(event.start)}</p>`;
                 content += `<p>Regular office day - Team works from the office</p>`;
@@ -2327,8 +2384,19 @@
                 eventTypeName = 'employee holiday';
             } else if (event.type === 'event') {
                 eventTypeName = 'EV event';
+            } else if (event.type === 'wfh') {
+                content += `<p><strong>✈️ WFH (Abroad):</strong> ${formatDate(event.start)}</p>`;
+                content += `<p>Working from abroad</p>`;
+                if (event.notes) {
+                    content += `<p><strong>📝 Notes:</strong> ${event.notes}</p>`;
+                }
+                if (event.id.includes('_custom_')) {
+                    content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete WFH (Abroad)</button>`;
+                }
             } else if (event.type === 'office') {
                 eventTypeName = 'office day';
+            } else if (event.type === 'wfh') {
+                eventTypeName = 'WFH (Abroad) day';
             } else if (event.type === 'other') {
                 eventTypeName = 'event';
             }
@@ -2355,7 +2423,7 @@
 
             try {
                 // Initialize with base events + office days
-                events = [...CALENDAR_EVENTS, ...generateOfficeDays()];
+                events = [...CALENDAR_EVENTS, ...generateOfficeDays(), ...generateWFHDays()];
 
                 // Show calendar immediately with base events
                 renderCalendar();
