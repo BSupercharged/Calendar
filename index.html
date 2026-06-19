@@ -1838,10 +1838,13 @@
             const shortMonth = ['Jan','Feb','Mar','Apr','May','Jun',
                                 'Jul','Aug','Sep','Oct','Nov','Dec'];
 
-            // Gather employee holidays and public holidays for the current year
+            // Gather employee holidays, WFH (Abroad), and public holidays for the current year
             const yearStr = String(currentYear);
             const empHolidays = events.filter(e =>
                 e.type === 'employee-holiday' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
+            );
+            const wfhHolidays = events.filter(e =>
+                e.type === 'wfh' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
             );
             const pubHolidays = events.filter(e =>
                 e.type === 'holiday' && (e.start.startsWith(yearStr) || e.end.startsWith(yearStr))
@@ -2032,6 +2035,56 @@
                 });
 
                 html += `</tbody></table></div>`;
+
+                // WFH (Abroad) section
+                if (wfhHolidays.length > 0) {
+                    const wfhPeople = Array.from(new Set(wfhHolidays.map(e => e.title))).sort();
+                    html += `<h2 style="margin-top:24px;">✈️ WFH (Abroad) — ${currentYear}</h2>`;
+                    html += `<div style="overflow-x:auto;">`;
+                    html += `<table class="holiday-table weekly-table">`;
+                    html += `<thead><tr><th class="person-col" rowspan="2">Person</th>`;
+                    monthGroups.forEach(mg => {
+                        html += `<th colspan="${mg.count}" class="month-group-header">${shortMonth[mg.month]}</th>`;
+                    });
+                    html += `<th class="total-col" rowspan="2">Total</th></tr><tr>`;
+                    weeks.forEach(wk => {
+                        const isThisWeek = isCurrentYear && wk.w === currentISOWeek;
+                        const weekStyle = isThisWeek ? ' style="background:#ffd700;color:#2c3e50;"' : '';
+                        html += `<th class="week-num-header"${weekStyle}>W${wk.w}</th>`;
+                    });
+                    html += `</tr></thead><tbody>`;
+
+                    wfhPeople.forEach(person => {
+                        const personWfh = wfhHolidays.filter(e => e.title === person);
+                        html += `<tr><td class="person-name">${person}</td>`;
+                        let totalDays = 0;
+                        weeks.forEach(wk => {
+                            const coveredDays = new Set();
+                            personWfh.forEach(ev => {
+                                wk.days.forEach(d => {
+                                    if (d >= ev.start && d <= ev.end && isWorkingDay(d)) coveredDays.add(d);
+                                });
+                            });
+                            const cnt = coveredDays.size;
+                            totalDays += cnt;
+                            if (cnt === 0) {
+                                const cwBg = (isCurrentYear && wk.w === currentISOWeek) ? ' style="background:rgba(255,215,0,0.18);"' : '';
+                                html += `<td class="week-cell"${cwBg}></td>`;
+                            } else {
+                                const sortedDays = Array.from(coveredDays).sort();
+                                const dateLabel = sortedDays.length > 1
+                                    ? `${ordinalDate(sortedDays[0])} - ${ordinalDate(sortedDays[sortedDays.length - 1])}`
+                                    : ordinalDate(sortedDays[0]);
+                                const tooltip = `W${wk.w} ${dateLabel}`;
+                                const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
+                                html += `<td class="week-cell holiday-week" style="background:rgba(23,162,184,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
+                            }
+                        });
+                        html += `<td class="total-days-cell">${totalDays}</td></tr>`;
+                    });
+
+                    html += `</tbody></table></div>`;
+                }
 
                 // Public holidays reference table (stays monthly)
                 if (pubHolidays.length > 0) {
