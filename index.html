@@ -2406,18 +2406,9 @@
             } else if (event.type === 'event') {
                 eventTypeName = 'EV event';
             } else if (event.type === 'wfh') {
-                content += `<p><strong>✈️ WFH (Abroad):</strong> ${formatDate(event.start)}</p>`;
-                content += `<p>Working from abroad</p>`;
-                if (event.notes) {
-                    content += `<p><strong>📝 Notes:</strong> ${event.notes}</p>`;
-                }
-                if (event.id.includes('_custom_')) {
-                    content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete WFH (Abroad)</button>`;
-                }
+                eventTypeName = 'WFH (Abroad) day';
             } else if (event.type === 'office') {
                 eventTypeName = 'office day';
-            } else if (event.type === 'wfh') {
-                eventTypeName = 'WFH (Abroad) day';
             } else if (event.type === 'other') {
                 eventTypeName = 'event';
             }
