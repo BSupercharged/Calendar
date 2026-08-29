@@ -4,12 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 Calendar - Charge Europe</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f8f9fa; min-height: 100vh; padding: 20px; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <p>Loading calendar from disk file - this is still not the full file.</p>
+    <div class="container">
+        <div class="header">
+            <div class="header-logo">
+                <div>
+                    <h1>Chargedot Europe 2026 Calendar</h1>
+                    <p>EV Charging Events, Dutch Holidays & Team Birthdays</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="view-buttons">
+                <button class="btn btn-secondary active" onclick="changeView('year')">Year</button>
+                <button class="btn btn-secondary" onclick="changeView('month')">Month</button>
+                <button class="btn btn-secondary" onclick="changeView('week')">Week</button>
+                <button class="btn btn-secondary" onclick="changeView('holidays')">Holiday View</button>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="navigate(-1)">&#8592;</button>
+                <div class="current-period" id="currentPeriod">2026</div>
+                <button class="nav-btn" onclick="navigate(1)">&#8594;</button>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="openAddModal()">+ Add Event</button>
+                <button class="btn btn-secondary" onclick="openOfficeSettings()" title="Configure office days">Office Days</button>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item" data-type="event" onclick="toggleFilter('event')"><div class="legend-color" style="background:#667eea;"></div><span>EV Events</span></div>
+            <div class="legend-item" data-type="holiday" onclick="toggleFilter('holiday')"><div class="legend-color" style="background:#e74c3c;"></div><span>Dutch Holidays</span></div>
+            <div class="legend-item" data-type="birthday" onclick="toggleFilter('birthday')"><div class="legend-color" style="background:#f39c12;"></div><span>Birthdays</span></div>
+            <div class="legend-item" data-type="office" onclick="toggleFilter('office')"><div class="legend-color" style="background:#27ae60;"></div><span>Office Days</span></div>
+            <div class="legend-item" data-type="employee-holiday" onclick="toggleFilter('employee-holiday')"><div class="legend-color" style="background:#9b59b6;"></div><span>Employee Holidays</span></div>
+            <div class="legend-item" data-type="wfh" onclick="toggleFilter('wfh')"><div class="legend-color" style="background:#17a2b8;"></div><span>WFH (Abroad)</span></div>
+            <div class="legend-item" data-type="other" onclick="toggleFilter('other')"><div class="legend-color" style="background:#34495e;"></div><span>Other</span></div>
+        </div>
+
+        <div class="calendar-content" id="calendarContent">
+            <div style="padding:50px;text-align:center;color:#6c757d;">
+                <h2>Loading calendar...</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Event</h2>
+                <button class="close-btn" onclick="closeModal('addModal')">&times;</button>
+            </div>
+            <form onsubmit="addEvent(event)">
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select id="eventType" required onchange="updateFormForType()">
+                        <option value="birthday">Birthday</option>
+                        <option value="employee-holiday">Employee Holiday</option>
+                        <option value="event">EV Event</option>
+                        <option value="office">Office Day</option>
+                        <option value="wfh">WFH (Abroad)</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label id="nameLabel">Name</label>
+                    <input type="text" id="eventName" required placeholder="Team member name">
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date (optional)</label>
+                    <input type="date" id="eventEndDate">
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="eventNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Add Event</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="viewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="viewEventTitle"></h2>
+                <button class="close-btn" onclick="closeModal('viewModal')">&times;</button>
+            </div>
+            <div id="viewEventContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="officeSettingsModal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h2>Office Days Settings</h2>
+                <button class="close-btn" onclick="closeModal('officeSettingsModal')">&times;</button>
+            </div>
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;">Regular office days (every week):</label>
+                <div id="weekdayToggles" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;">Excluded dates:</label>
+                <div id="excludeList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <input type="date" id="newExcludeDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExcludeDate()">+ Add</button>
+                </div>
+            </div>
+            <div style="margin-bottom:22px;">
+                <label style="display:block;font-weight:600;margin-bottom:10px;">Extra dates:</label>
+                <div id="extraList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <input type="date" id="newExtraDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExtraDate()">+ Add</button>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;">
+                <button class="btn btn-primary" onclick="applyOfficeSettings()" style="flex:1;">Save & Apply</button>
+                <button class="btn btn-delete" onclick="resetOfficeSettings()">Reset to Defaults</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="events.js"></script>
+    <script src="app-a.js"></script>
+    <script src="app-b.js"></script>
+    <script src="app-c.js"></script>
 </body>
 </html>
