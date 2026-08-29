@@ -15,10 +15,10 @@
         <div class="password-card">
             <h1>ChargeDot Europe Calendar</h1>
             <p>Enter the team password to open the calendar.</p>
-            <form id="passwordForm">
+            <form id="passwordForm" autocomplete="off">
                 <div class="form-group">
                     <label for="passwordInput">Password</label>
-                    <input type="password" id="passwordInput" autocomplete="current-password" required>
+                    <input type="password" id="passwordInput" name="calendar-password" autocomplete="off" required>
                 </div>
                 <p id="passwordError" class="password-error" hidden>That password is not correct. Try again.</p>
                 <button type="submit" class="btn btn-primary" style="width:100%;">Open calendar</button>

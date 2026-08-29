@@ -7,8 +7,14 @@
             const app = document.getElementById('appContainer');
 
             function showApp() {
-                if (gate) gate.hidden = true;
-                if (app) app.hidden = false;
+                if (gate) {
+                    gate.hidden = true;
+                    gate.style.display = 'none';
+                }
+                if (app) {
+                    app.hidden = false;
+                    app.style.display = '';
+                }
             }
 
             if (localHost || localStorage.getItem(sessionKey) === 'true') {
@@ -46,9 +52,9 @@
         let currentWeekStart = new Date(2026, 0, 1);
         let hiddenTypes = {}; // legend toggles: true = hide that type (EV events, social, etc.)
 
-        // ═════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
         // OFFICE DAYS CONFIGURATION — Edit this section to change office days
-        // ═════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
         //
         // officeDaysOfWeek : which weekdays are office days
         //   0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday,
@@ -59,7 +65,7 @@
         // extraDates : one-off dates to ADD (e.g. a moved office day)
         //
         // All changes are saved to localStorage so they persist.
-        // ═════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
 
         const DEFAULT_OFFICE_CONFIG = {
             officeDaysOfWeek: [3],             // Wednesday

@@ -918,13 +918,17 @@ body {
 }
 
 
-/* password gate */
+/* password gate — [hidden] must win over display:flex */
 .password-gate {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f7f8fa;
+}
+.password-gate[hidden],
+#appContainer[hidden] {
+    display: none !important;
 }
 .password-card {
     background: #fff;
