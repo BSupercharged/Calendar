@@ -457,6 +457,13 @@ const CALENDAR_EVENTS = [
     "type": "holiday"
   },
   {
+    "id": "social_1",
+    "title": "Social",
+    "start": "2026-09-10",
+    "end": "2026-09-10",
+    "type": "social"
+  },
+  {
     "id": "h10",
     "title": "Boxing Day",
     "start": "2026-12-26",
