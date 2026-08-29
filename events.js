@@ -456,13 +456,14 @@ const CALENDAR_EVENTS = [
     "end": "2026-12-25",
     "type": "holiday"
   },
-  {
-    "id": "social_1",
-    "title": "Social",
-    "start": "2026-09-10",
-    "end": "2026-09-10",
-    "type": "social"
-  },
+ {
+ "id": "social_1",
+ "title": "Team social",
+ "start": "2026-09-10",
+ "end": "2026-09-10",
+ "type": "social",
+ "notes": "Placeholder social day — rename or replace from Add event."
+ },
   {
     "id": "h10",
     "title": "Boxing Day",
