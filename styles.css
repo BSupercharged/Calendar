@@ -866,8 +866,35 @@ body {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 12px 8px 24px;
+    }
+
+    .header,
+    .controls,
+    .legend {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .header h1 {
+        font-size: 1.15rem;
+    }
+
     .controls {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .view-buttons,
+    .navigation {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .current-period {
+        min-width: 0;
+        font-size: 1.05rem;
     }
 
     .year-view {
@@ -879,8 +906,14 @@ body {
         font-size: 12px;
     }
 
+    .day-header {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+
     .day-cell {
         min-height: 80px;
+        padding: 4px;
     }
 }
 
@@ -903,3 +936,4 @@ body {
 }
 .password-card h1 { font-size: 1.2rem; margin-bottom: 8px; }
 .password-card p { color: #4e5e74; margin-bottom: 16px; font-size: 0.92rem; }
+.password-error { color: #e74c3c; margin: -8px 0 14px; font-size: 0.88rem; }
