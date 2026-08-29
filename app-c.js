@@ -145,6 +145,11 @@
                 nameInput.placeholder = 'e.g., EV Conference, Trade Show';
                 nameInput.value = '';
                 nameInput.readOnly = false;
+            } else if (type === 'social') {
+                nameLabel.textContent = 'Event Name';
+                nameInput.placeholder = 'e.g., Team dinner, drinks';
+                nameInput.value = '';
+                nameInput.readOnly = false;
             } else if (type === 'office') {
                 nameLabel.textContent = 'Title';
                 nameInput.value = 'Office Day';
@@ -278,6 +283,16 @@
             } else if (event.type === 'office') {
                 content += `<p><strong>🏢 Office Day:</strong> ${formatDate(event.start)}</p>`;
                 content += `<p>Regular office day - Team works from the office</p>`;
+            } else if (event.type === 'social') {
+                content += `<p><strong>Social:</strong> ${formatDate(event.start)}`;
+                if (event.start !== event.end) {
+                    content += ` - ${formatDate(event.end)}`;
+                }
+                content += '</p>';
+                if (event.notes) {
+                    content += `<p><strong>Notes:</strong> ${event.notes}</p>`;
+                }
+                content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete social event</button>`;
             } else if (event.type === 'other') {
                 content += `<p><strong>📌 Event:</strong> ${formatDate(event.start)}</p>`;
                 if (event.notes) {
@@ -306,6 +321,8 @@
                 eventTypeName = 'WFH (Abroad) day';
             } else if (event.type === 'office') {
                 eventTypeName = 'office day';
+            } else if (event.type === 'social') {
+                eventTypeName = 'social event';
             } else if (event.type === 'other') {
                 eventTypeName = 'event';
             }
