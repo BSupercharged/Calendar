@@ -11,7 +11,21 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <div id="passwordGate" class="password-gate" hidden>
+        <div class="password-card">
+            <h1>ChargeDot Europe Calendar</h1>
+            <p>Enter the team password to open the calendar.</p>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="passwordInput">Password</label>
+                    <input type="password" id="passwordInput" autocomplete="current-password" required>
+                </div>
+                <p id="passwordError" class="password-error" hidden>That password is not correct. Try again.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Open calendar</button>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="appContainer" hidden>
         <div class="header">
             <div class="header-logo">
                 <div class="logo-icon">
@@ -19,7 +33,7 @@
                 </div>
                 <div>
                     <h1>ChargeDot Europe Calendar</h1>
-                    <p>EV charging events, Dutch holidays and team days</p>
+                    <p>EV charging events, socials, Dutch holidays and team days</p>
                 </div>
             </div>
         </div>
