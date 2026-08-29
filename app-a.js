@@ -52,9 +52,9 @@
         let currentWeekStart = new Date(2026, 0, 1);
         let hiddenTypes = {}; // legend toggles: true = hide that type (EV events, social, etc.)
 
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
         // OFFICE DAYS CONFIGURATION — Edit this section to change office days
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
         //
         // officeDaysOfWeek : which weekdays are office days
         //   0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday,
@@ -65,7 +65,7 @@
         // extraDates : one-off dates to ADD (e.g. a moved office day)
         //
         // All changes are saved to localStorage so they persist.
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
 
         const DEFAULT_OFFICE_CONFIG = {
             officeDaysOfWeek: [3],             // Wednesday
@@ -241,12 +241,34 @@
             renderCalendar();
         }
 
-        function toggleFilter(type) {
-            hiddenTypes[type] = !hiddenTypes[type];
+        function legendTypes() {
+            return Array.from(document.querySelectorAll('.legend-item[data-type]'))
+                .map(el => el.dataset.type);
+        }
+
+        function syncLegend() {
             document.querySelectorAll('.legend-item[data-type]').forEach(el => {
                 el.classList.toggle('dimmed', !!hiddenTypes[el.dataset.type]);
                 el.classList.remove('active');
             });
+            const btn = document.getElementById('legendBulkBtn');
+            if (!btn) return;
+            const types = legendTypes();
+            const allHidden = types.length > 0 && types.every(t => hiddenTypes[t]);
+            btn.textContent = allHidden ? 'Select all' : 'Deselect all';
+        }
+
+        function toggleFilter(type) {
+            hiddenTypes[type] = !hiddenTypes[type];
+            syncLegend();
+            renderCalendar();
+        }
+
+        function toggleAllFilters() {
+            const types = legendTypes();
+            const allHidden = types.length > 0 && types.every(t => hiddenTypes[t]);
+            types.forEach(t => { hiddenTypes[t] = !allHidden; });
+            syncLegend();
             renderCalendar();
         }
 
