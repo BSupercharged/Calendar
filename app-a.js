@@ -30,7 +30,7 @@
         let currentYear = 2026;
         let currentMonth = 0; // January
         let currentWeekStart = new Date(2026, 0, 1);
-        let activeFilter = null; // type string when a legend filter is active
+        let hiddenTypes = {}; // legend toggles: true = hide that type (EV events, social, etc.)
 
         // ═══════════════════════════════════════════════════════════════
         // OFFICE DAYS CONFIGURATION — Edit this section to change office days
@@ -222,15 +222,10 @@
         }
 
         function toggleFilter(type) {
-            activeFilter = activeFilter === type ? null : type;
-            // Update legend item styles
+            hiddenTypes[type] = !hiddenTypes[type];
             document.querySelectorAll('.legend-item[data-type]').forEach(el => {
-                el.classList.remove('active', 'dimmed');
-                if (activeFilter) {
-                    el.dataset.type === activeFilter
-                        ? el.classList.add('active')
-                        : el.classList.add('dimmed');
-                }
+                el.classList.toggle('dimmed', !!hiddenTypes[el.dataset.type]);
+                el.classList.remove('active');
             });
             renderCalendar();
         }
@@ -243,7 +238,7 @@
             const dateStr = `${year}-${month}-${day}`;
 
             return events.filter(event => {
-                if (activeFilter && event.type !== activeFilter) return false;
+                if (hiddenTypes[event.type]) return false;
                 return event.start <= dateStr && event.end >= dateStr;
             });
         }
