@@ -45,31 +45,35 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item" data-type="event" onclick="toggleFilter('event')" title="Click to filter">
+            <div class="legend-item" data-type="event" onclick="toggleFilter('event')" title="Click to hide or show">
                 <div class="legend-color" style="background: #667eea;"></div>
                 <span>EV events</span>
             </div>
-            <div class="legend-item" data-type="holiday" onclick="toggleFilter('holiday')" title="Click to filter">
+            <div class="legend-item" data-type="social" onclick="toggleFilter('social')" title="Click to hide or show">
+                <div class="legend-color" style="background: #db2777;"></div>
+                <span>Social</span>
+            </div>
+            <div class="legend-item" data-type="holiday" onclick="toggleFilter('holiday')" title="Click to hide or show">
                 <div class="legend-color" style="background: #e74c3c;"></div>
                 <span>Dutch holidays</span>
             </div>
-            <div class="legend-item" data-type="birthday" onclick="toggleFilter('birthday')" title="Click to filter">
+            <div class="legend-item" data-type="birthday" onclick="toggleFilter('birthday')" title="Click to hide or show">
                 <div class="legend-color" style="background: #f39c12;"></div>
                 <span>Birthdays</span>
             </div>
-            <div class="legend-item" data-type="office" onclick="toggleFilter('office')" title="Click to filter">
+            <div class="legend-item" data-type="office" onclick="toggleFilter('office')" title="Click to hide or show">
                 <div class="legend-color" style="background: #27ae60;"></div>
                 <span>Office days</span>
             </div>
-            <div class="legend-item" data-type="employee-holiday" onclick="toggleFilter('employee-holiday')" title="Click to filter">
+            <div class="legend-item" data-type="employee-holiday" onclick="toggleFilter('employee-holiday')" title="Click to hide or show">
                 <div class="legend-color" style="background: #9b59b6;"></div>
                 <span>Employee holidays</span>
             </div>
-            <div class="legend-item" data-type="wfh" onclick="toggleFilter('wfh')" title="Click to filter">
+            <div class="legend-item" data-type="wfh" onclick="toggleFilter('wfh')" title="Click to hide or show">
                 <div class="legend-color" style="background: #17a2b8;"></div>
                 <span>WFH (abroad)</span>
             </div>
-            <div class="legend-item" data-type="other" onclick="toggleFilter('other')" title="Click to filter">
+            <div class="legend-item" data-type="other" onclick="toggleFilter('other')" title="Click to hide or show">
                 <div class="legend-color" style="background: #34495e;"></div>
                 <span>Other</span>
             </div>
@@ -96,6 +100,7 @@
                         <option value="birthday">Birthday</option>
                         <option value="employee-holiday">Employee holiday</option>
                         <option value="event">EV event</option>
+                        <option value="social">Social</option>
                         <option value="office">Office day</option>
                         <option value="wfh">WFH (abroad)</option>
                         <option value="other">Other</option>
