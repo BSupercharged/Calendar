@@ -119,7 +119,7 @@
         }
 
         function resetOfficeSettings() {
-            if (confirm('Reset office days to defaults (Monday & Thursday)?')) {
+            if (confirm('Reset office days to defaults (Wednesday, plus the extra dates)?')) {
                 tempOfficeConfig = JSON.parse(JSON.stringify(DEFAULT_OFFICE_CONFIG));
                 renderOfficeSettingsUI();
             }
@@ -154,6 +154,11 @@
                 nameLabel.textContent = 'Title';
                 nameInput.value = 'Office Day';
                 nameInput.readOnly = true;
+            } else if (type === 'wfh') {
+                nameLabel.textContent = 'Employee Name';
+                nameInput.placeholder = 'Who is working from abroad?';
+                nameInput.value = '';
+                nameInput.readOnly = false;
             } else if (type === 'other') {
                 nameLabel.textContent = 'Event Name';
                 nameInput.placeholder = 'e.g., Company Meeting, Training';
@@ -292,7 +297,9 @@
                 if (event.notes) {
                     content += `<p><strong>Notes:</strong> ${event.notes}</p>`;
                 }
-                content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete social event</button>`;
+                if (event.id.includes('_custom_')) {
+                    content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete social event</button>`;
+                }
             } else if (event.type === 'other') {
                 content += `<p><strong>📌 Event:</strong> ${formatDate(event.start)}</p>`;
                 if (event.notes) {
@@ -337,7 +344,11 @@
         }
 
         function formatDate(dateStr) {
-            const date = new Date(dateStr);
+            const parts = String(dateStr).slice(0, 10).split('-');
+            const year = Number(parts[0]);
+            const month = Number(parts[1]) - 1;
+            const day = Number(parts[2]);
+            const date = new Date(year, month, day);
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString('en-US', options);
         }
