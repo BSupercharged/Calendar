@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Calendar - Charge Europe</title>
+    <title>ChargeDot Europe Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://eu.chargedot.com/favicon.jpeg" type="image/jpeg">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,11 +15,11 @@
         <div class="header">
             <div class="header-logo">
                 <div class="logo-icon">
-                    <img src="data:image/jpeg;base64,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" alt="Chargedot Logo">
+                    <img src="https://eu.chargedot.com/favicon.jpeg" alt="ChargeDot">
                 </div>
                 <div>
-                    <h1>Chargedot Europe 2026 Calendar</h1>
-                    <p>EV Charging Events, Dutch Holidays & Team Birthdays</p>
+                    <h1>ChargeDot Europe Calendar</h1>
+                    <p>EV charging events, Dutch holidays and team days</p>
                 </div>
             </div>
         </div>
@@ -25,7 +29,7 @@
                 <button class="btn btn-secondary active" onclick="changeView('year')">Year</button>
                 <button class="btn btn-secondary" onclick="changeView('month')">Month</button>
                 <button class="btn btn-secondary" onclick="changeView('week')">Week</button>
-                <button class="btn btn-secondary" onclick="changeView('holidays')">Holiday View</button>
+                <button class="btn btn-secondary" onclick="changeView('holidays')">Holiday view</button>
             </div>
             
             <div class="navigation">
@@ -35,19 +39,19 @@
             </div>
 
             <div style="display:flex;gap:10px;">
-                <button class="btn btn-primary" onclick="openAddModal()">+ Add Event</button>
-                <button class="btn btn-secondary" onclick="openOfficeSettings()" title="Configure office days">⚙ Office Days</button>
+                <button class="btn btn-primary" onclick="openAddModal()">+ Add event</button>
+                <button class="btn btn-secondary" onclick="openOfficeSettings()" title="Configure office days">Office days</button>
             </div>
         </div>
 
         <div class="legend">
             <div class="legend-item" data-type="event" onclick="toggleFilter('event')" title="Click to filter">
                 <div class="legend-color" style="background: #667eea;"></div>
-                <span>EV Events</span>
+                <span>EV events</span>
             </div>
             <div class="legend-item" data-type="holiday" onclick="toggleFilter('holiday')" title="Click to filter">
                 <div class="legend-color" style="background: #e74c3c;"></div>
-                <span>Dutch Holidays</span>
+                <span>Dutch holidays</span>
             </div>
             <div class="legend-item" data-type="birthday" onclick="toggleFilter('birthday')" title="Click to filter">
                 <div class="legend-color" style="background: #f39c12;"></div>
@@ -55,15 +59,15 @@
             </div>
             <div class="legend-item" data-type="office" onclick="toggleFilter('office')" title="Click to filter">
                 <div class="legend-color" style="background: #27ae60;"></div>
-                <span>Office Days</span>
+                <span>Office days</span>
             </div>
             <div class="legend-item" data-type="employee-holiday" onclick="toggleFilter('employee-holiday')" title="Click to filter">
                 <div class="legend-color" style="background: #9b59b6;"></div>
-                <span>Employee Holidays</span>
+                <span>Employee holidays</span>
             </div>
             <div class="legend-item" data-type="wfh" onclick="toggleFilter('wfh')" title="Click to filter">
                 <div class="legend-color" style="background: #17a2b8;"></div>
-                <span>WFH (Abroad)</span>
+                <span>WFH (abroad)</span>
             </div>
             <div class="legend-item" data-type="other" onclick="toggleFilter('other')" title="Click to filter">
                 <div class="legend-color" style="background: #34495e;"></div>
@@ -72,29 +76,28 @@
         </div>
 
         <div class="calendar-content" id="calendarContent">
-            <div style="padding: 50px; text-align: center; color: #6c757d;">
+            <div style="padding: 50px; text-align: center; color: #4e5e74;">
                 <h2>Loading calendar...</h2>
                 <p>If this message persists, please refresh the page.</p>
             </div>
         </div>
     </div>
 
-    <!-- Add Event Modal -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add Event</h2>
+                <h2>Add event</h2>
                 <button class="close-btn" onclick="closeModal('addModal')">&times;</button>
             </div>
             <form onsubmit="addEvent(event)">
                 <div class="form-group">
-                    <label>Event Type</label>
+                    <label>Event type</label>
                     <select id="eventType" required onchange="updateFormForType()">
                         <option value="birthday">Birthday</option>
-                        <option value="employee-holiday">Employee Holiday</option>
-                        <option value="event">EV Event</option>
-                        <option value="office">Office Day</option>
-                        <option value="wfh">WFH (Abroad)</option>
+                        <option value="employee-holiday">Employee holiday</option>
+                        <option value="event">EV event</option>
+                        <option value="office">Office day</option>
+                        <option value="wfh">WFH (abroad)</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -103,23 +106,22 @@
                     <input type="text" id="eventName" required placeholder="Team member name">
                 </div>
                 <div class="form-group">
-                    <label>Start Date</label>
+                    <label>Start date</label>
                     <input type="date" id="eventDate" required>
                 </div>
                 <div class="form-group">
-                    <label>End Date (optional)</label>
+                    <label>End date (optional)</label>
                     <input type="date" id="eventEndDate">
                 </div>
                 <div class="form-group">
                     <label>Notes (optional)</label>
                     <textarea id="eventNotes" rows="3" placeholder="Any special notes..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Event</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add event</button>
             </form>
         </div>
     </div>
 
-    <!-- View Event Modal -->
     <div class="modal" id="viewModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -130,41 +132,40 @@
         </div>
     </div>
 
-    <!-- Office Days Settings Modal -->
     <div class="modal" id="officeSettingsModal">
         <div class="modal-content" style="max-width:560px;">
             <div class="modal-header">
-                <h2>⚙ Office Days Settings</h2>
+                <h2>Office days</h2>
                 <button class="close-btn" onclick="closeModal('officeSettingsModal')">&times;</button>
             </div>
 
             <div style="margin-bottom:22px;">
-                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Regular office days (every week):</label>
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#212a36;">Regular office days (every week)</label>
                 <div id="weekdayToggles" style="display:flex;gap:8px;flex-wrap:wrap;">
                 </div>
             </div>
 
             <div style="margin-bottom:22px;">
-                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Excluded dates <span style="font-weight:400;color:#888;">(skip these dates)</span>:</label>
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#212a36;">Excluded dates <span style="font-weight:400;color:#4e5e74;">(skip these dates)</span></label>
                 <div id="excludeList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
                 <div style="display:flex;gap:8px;">
-                    <input type="date" id="newExcludeDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
-                    <button class="btn btn-primary" onclick="addExcludeDate()" style="padding:8px 16px;">+ Add</button>
+                    <input type="date" id="newExcludeDate" style="flex:1;padding:8px;border:1px solid #e1e6ed;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExcludeDate()" style="padding:8px 16px;">Add</button>
                 </div>
             </div>
 
             <div style="margin-bottom:22px;">
-                <label style="display:block;font-weight:600;margin-bottom:10px;color:#333;">Extra dates <span style="font-weight:400;color:#888;">(one-off office days)</span>:</label>
+                <label style="display:block;font-weight:600;margin-bottom:10px;color:#212a36;">Extra dates <span style="font-weight:400;color:#4e5e74;">(one-off office days)</span></label>
                 <div id="extraList" style="max-height:160px;overflow-y:auto;margin-bottom:8px;"></div>
                 <div style="display:flex;gap:8px;">
-                    <input type="date" id="newExtraDate" style="flex:1;padding:8px;border:2px solid #e9ecef;border-radius:8px;">
-                    <button class="btn btn-primary" onclick="addExtraDate()" style="padding:8px 16px;">+ Add</button>
+                    <input type="date" id="newExtraDate" style="flex:1;padding:8px;border:1px solid #e1e6ed;border-radius:8px;">
+                    <button class="btn btn-primary" onclick="addExtraDate()" style="padding:8px 16px;">Add</button>
                 </div>
             </div>
 
             <div style="display:flex;gap:10px;margin-top:18px;">
-                <button class="btn btn-primary" onclick="applyOfficeSettings()" style="flex:1;">Save & Apply</button>
-                <button class="btn btn-delete" onclick="resetOfficeSettings()" style="flex:0;white-space:nowrap;">Reset to Defaults</button>
+                <button class="btn btn-primary" onclick="applyOfficeSettings()" style="flex:1;">Save and apply</button>
+                <button class="btn btn-delete" onclick="resetOfficeSettings()" style="flex:0;white-space:nowrap;">Reset to defaults</button>
             </div>
         </div>
     </div>
