@@ -316,6 +316,10 @@ body {
     background: #17a2b8;
 }
 
+.mini-day.has-event.social {
+    background: #db2777;
+}
+
 .mini-day.has-event.multiple {
     background: linear-gradient(135deg, #667eea 0%, #e74c3c 50%, #f39c12 100%);
 }
@@ -476,6 +480,10 @@ body {
     background: #17a2b8;
 }
 
+.event-badge.social {
+    background: #db2777;
+}
+
 /* Week View */
 .week-view {
     background: white;
@@ -561,6 +569,10 @@ body {
 
 .week-event.wfh {
     background: #17a2b8;
+}
+
+.week-event.social {
+    background: #db2777;
 }
 
 /* Holiday View Table */
