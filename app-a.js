@@ -1,22 +1,36 @@
-// Password protection
+// Password protection — local preview skips the gate so the calendar is usable here.
         (function() {
             const correctPassword = 'NLCAM';
             const sessionKey = 'calendarAuthenticated';
-            
-            // Check if already authenticated
-            if (localStorage.getItem(sessionKey) === 'true') {
-                return; // Already authenticated, continue loading
+            const localHost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(location.hostname);
+            const gate = document.getElementById('passwordGate');
+            const app = document.getElementById('appContainer');
+
+            function showApp() {
+                if (gate) gate.hidden = true;
+                if (app) app.hidden = false;
             }
-            
-            // Prompt for password
-            const enteredPassword = prompt('Please enter the password to access the calendar:');
-            
-            if (enteredPassword === correctPassword) {
-                localStorage.setItem(sessionKey, 'true');
-                // Continue loading calendar
-            } else {
-                document.body.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Arial; background: #f8f9fa;"><div style="text-align: center; padding: 40px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);"><h1 style="color: #e74c3c; margin-bottom: 20px;">Access Denied</h1><p style="color: #6c757d;">Invalid password. Please refresh the page to try again.</p></div></div>';
-                throw new Error('Authentication failed');
+
+            if (localHost || localStorage.getItem(sessionKey) === 'true') {
+                showApp();
+                return;
+            }
+
+            if (gate) gate.hidden = false;
+            const form = document.getElementById('passwordForm');
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            if (form && input) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (input.value === correctPassword) {
+                        localStorage.setItem(sessionKey, 'true');
+                        showApp();
+                    } else if (error) {
+                        error.hidden = false;
+                        input.focus();
+                    }
+                });
             }
         })();
 
@@ -32,9 +46,9 @@
         let currentWeekStart = new Date(2026, 0, 1);
         let hiddenTypes = {}; // legend toggles: true = hide that type (EV events, social, etc.)
 
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
         // OFFICE DAYS CONFIGURATION — Edit this section to change office days
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
         //
         // officeDaysOfWeek : which weekdays are office days
         //   0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday,
@@ -45,7 +59,7 @@
         // extraDates : one-off dates to ADD (e.g. a moved office day)
         //
         // All changes are saved to localStorage so they persist.
-        // ═══════════════════════════════════════════════════════════════
+        // ═════════════════════════════════════════════════════════════
 
         const DEFAULT_OFFICE_CONFIG = {
             officeDaysOfWeek: [3],             // Wednesday
