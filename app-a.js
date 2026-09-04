@@ -47,9 +47,14 @@
 
         let events = [...CALENDAR_EVENTS];
         let currentView = 'year';
-        let currentYear = 2026;
-        let currentMonth = 0; // January
-        let currentWeekStart = new Date(2026, 0, 1);
+        const _now = new Date();
+        let currentYear = _now.getFullYear();
+        let currentMonth = _now.getMonth(); // 0-based; land on today
+        let currentWeekStart = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+        {
+            const dow = currentWeekStart.getDay();
+            currentWeekStart.setDate(currentWeekStart.getDate() + (dow === 0 ? -6 : 1 - dow));
+        }
         let hiddenTypes = {}; // legend toggles: true = hide that type (EV events, social, etc.)
 
         // ═════════════════════════════════════════════════════════════
@@ -129,13 +134,6 @@
         // Add office days to events
         events = [...CALENDAR_EVENTS, ...generateOfficeDays()];
         
-        // Set initial week start to first Monday of 2026
-        let initialWeekStart = new Date(2026, 0, 1);
-        while (initialWeekStart.getDay() !== 1) {
-            initialWeekStart.setDate(initialWeekStart.getDate() + 1);
-        }
-        currentWeekStart = initialWeekStart;
-
         // Fetch custom events from Google Sheet
         async function loadSavedEvents() {
             try {
@@ -291,8 +289,11 @@
             
             let html = '<div class="year-view">';
             
+            const today = new Date();
+            const isThisCalendarYear = currentYear === today.getFullYear();
             for (let month = 0; month < 12; month++) {
-                html += `<div class="month-mini" onclick="goToMonth(${month})">`;
+                const isCurrentMonth = isThisCalendarYear && month === today.getMonth();
+                html += `<div class="month-mini${isCurrentMonth ? ' current-month' : ''}" id="year-month-${month}" onclick="goToMonth(${month})">`;
                 html += `<h3>${monthNames[month]}</h3>`;
                 html += '<div class="mini-calendar">';
                 
@@ -352,6 +353,14 @@
             
             document.getElementById('calendarContent').innerHTML = html;
             document.getElementById('currentPeriod').textContent = currentYear;
+            if (isThisCalendarYear) {
+                const el = document.getElementById('year-month-' + today.getMonth());
+                if (el) {
+                    requestAnimationFrame(() => {
+                        el.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    });
+                }
+            }
         }
 
         function goToMonth(month) {
