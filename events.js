@@ -465,6 +465,14 @@ const CALENDAR_EVENTS = [
  "notes": "Placeholder social day — rename or replace from Add event."
  },
   {
+    "id": "wfh_martina_2026-09-21",
+    "title": "Martina",
+    "start": "2026-09-21",
+    "end": "2026-09-21",
+    "type": "wfh",
+    "notes": "WFH abroad"
+  },
+  {
     "id": "h10",
     "title": "Boxing Day",
     "start": "2026-12-26",
