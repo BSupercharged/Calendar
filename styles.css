@@ -260,6 +260,12 @@ body {
     border-color: #9dc41c;
 }
 
+.month-mini.current-month {
+    border-color: #9dc41c;
+    box-shadow: 0 0 0 2px rgba(157, 196, 28, 0.25);
+    scroll-margin-top: 16px;
+}
+
 .month-mini h3 {
     text-align: left;
     margin-bottom: 12px;
