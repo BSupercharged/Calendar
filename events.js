@@ -277,6 +277,19 @@ const CALENDAR_EVENTS = [
     "website": "https://www.everythingelectric.co.uk/"
   },
   {
+    "id": "event_39",
+    "title": "EV Experience",
+    "start": "2026-09-24",
+    "end": "2026-09-26",
+    "type": "event",
+    "location": "Circuit Zandvoort, NL",
+    "priority": "High",
+    "website": "https://evexperience.nl/",
+    "status": "skip",
+    "icp": "fleet / NL brand",
+    "notes": "NLC-50 prior favourite for C1 launch. Thu/Fri B2B. Timing too early if C1 not ready before Nov — keep as skip/visitor-only unless readiness moves."
+  },
+  {
     "id": "event_24",
     "title": "EVCharge Live UK",
     "start": "2026-09-22",
@@ -346,7 +359,10 @@ const CALENDAR_EVENTS = [
     "type": "event",
     "location": "Bologna, IT",
     "priority": "Medium",
-    "website": "https://www.e-charge.it/"
+    "website": "https://www.e-charge.it/",
+    "status": "skip",
+    "icp": "installer / IT",
+    "notes": "NLC-50 shortlist; too early if C1 not ready before Nov."
   },
   {
     "id": "event_28",
@@ -369,6 +385,19 @@ const CALENDAR_EVENTS = [
     "website": "https://www.emove360.com/"
   },
   {
+    "id": "event_40",
+    "title": "Fleet Electrification & Decarbonisation Forum",
+    "start": "2026-11-18",
+    "end": "2026-11-19",
+    "type": "event",
+    "location": "Amsterdam, NL",
+    "priority": "High",
+    "website": "https://www.leadventgrp.com/events/fleet-electrification-and-decarbonisation-forum/details",
+    "status": "considering",
+    "icp": "fleet / B2B",
+    "notes": "NLC-50 primary C1 soft-launch candidate if ready Nov+. Same week as London EV Show — pick one primary. Showcase/sponsor packages."
+  },
+  {
     "id": "event_37",
     "title": "London EV Show (November)",
     "start": "2026-11-18",
@@ -378,7 +407,8 @@ const CALENDAR_EVENTS = [
     "priority": "Medium",
     "website": "https://www.londonevshow.com/",
     "status": "considering",
-    "icp": "partners / UK"
+    "icp": "partners / UK",
+    "notes": "NLC-50: same week as Fleet Forum Amsterdam — pick one primary. Higher cost (~€19–36k prior quote)."
   },
   {
     "id": "event_38",
@@ -412,6 +442,19 @@ const CALENDAR_EVENTS = [
     "location": "Amersfoort, NL",
     "priority": "High",
     "website": "https://www.congreslaadinfra.nl/en/"
+  },
+  {
+    "id": "event_41",
+    "title": "7th European EV Charging Infrastructure",
+    "start": "2027-01-28",
+    "end": "2027-01-29",
+    "type": "event",
+    "location": "NH Amsterdam Zuid, Amsterdam, NL",
+    "priority": "High",
+    "website": "https://annual-ev-charging-infrastructure.com/",
+    "status": "considering",
+    "icp": "CPO / infra / fleet",
+    "notes": "NLC-50 backup if C1 misses Nov soft launch. Prospero conference; delegate ~€1499; sponsorship/speaking packages available."
   },
   {
     "id": "h1",
