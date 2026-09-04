@@ -381,6 +381,19 @@ const CALENDAR_EVENTS = [
     "icp": "partners / UK"
   },
   {
+    "id": "event_38",
+    "title": "V2G Summit",
+    "start": "2026-12-01",
+    "end": "2026-12-02",
+    "type": "event",
+    "location": "NEMO Science Museum, Amsterdam, NL",
+    "priority": "High",
+    "website": "https://www.v2gsummit.de/",
+    "status": "considering",
+    "icp": "V2G / grid / energy",
+    "notes": "Conexio-PSE. Tickets: https://conexiopse_en.univents.world/events/152126. Clash week with eMobility Expo Warsaw."
+  },
+  {
     "id": "event_30",
     "title": "eMobility Expo",
     "start": "2026-12-01",
