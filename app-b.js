@@ -107,9 +107,10 @@
 
             // Build HTML
             // Determine current ISO week for highlighting
-            const todayStr = new Date().toISOString().slice(0, 10);
+            const _todayLocal = new Date();
+            const todayStr = `${_todayLocal.getFullYear()}-${String(_todayLocal.getMonth()+1).padStart(2,'0')}-${String(_todayLocal.getDate()).padStart(2,'0')}`;
             const currentISOWeek = getISOWeek(todayStr);
-            const isCurrentYear = currentYear === new Date().getFullYear();
+            const isCurrentYear = currentYear === _todayLocal.getFullYear();
 
             let html = `<div class="holiday-view">`;
             html += `<h2>🏖️ Employee Holiday Overview — ${currentYear}</h2>`;
@@ -133,7 +134,7 @@
                 weeks.forEach(wk => {
                     const isThisWeek = isCurrentYear && wk.w === currentISOWeek;
                     const weekStyle = isThisWeek ? ' style="background:#ffd700;color:#2c3e50;"' : '';
-                    html += `<th class="week-num-header"${weekStyle}>W${wk.w}</th>`;
+                    html += `<th class="week-num-header"${weekStyle} data-week="${wk.w}">W${wk.w}</th>`;
                 });
                 html += `</tr>`;
                 html += `</thead><tbody>`;
@@ -214,7 +215,7 @@
                     weeks.forEach(wk => {
                         const isThisWeek = isCurrentYear && wk.w === currentISOWeek;
                         const weekStyle = isThisWeek ? ' style="background:#ffd700;color:#2c3e50;"' : '';
-                        html += `<th class="week-num-header"${weekStyle}>W${wk.w}</th>`;
+                        html += `<th class="week-num-header"${weekStyle} data-week="${wk.w}">W${wk.w}</th>`;
                     });
                     html += `</tr></thead><tbody>`;
 
@@ -275,4 +276,20 @@
             html += `</div>`;
             document.getElementById('calendarContent').innerHTML = html;
             document.getElementById('currentPeriod').textContent = currentYear;
+
+            // Scroll holiday + WFH week tables to current week (show future, not Jan)
+            if (isCurrentYear) {
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.holiday-view .weekly-table').forEach(table => {
+                        const th = table.querySelector(`th.week-num-header[data-week="${currentISOWeek}"]`);
+                        if (!th) return;
+                        const scroller = table.closest('div[style*="overflow-x"]') || table.parentElement;
+                        if (!scroller) return;
+                        const sticky = table.querySelector('th.person-col');
+                        const stickyW = sticky ? sticky.offsetWidth : 0;
+                        const thLeft = th.offsetLeft;
+                        scroller.scrollLeft = Math.max(0, thLeft - stickyW - 4);
+                    });
+                });
+            }
         }
