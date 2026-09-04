@@ -277,6 +277,41 @@ const CALENDAR_EVENTS = [
     "website": "https://www.everythingelectric.co.uk/"
   },
   {
+    "id": "cd_aria_precheck_2026-09-07",
+    "title": "Aria charger pre-check + informal office",
+    "start": "2026-09-07",
+    "end": "2026-09-07",
+    "type": "other",
+    "location": "NL (Delft / Amsterdam)",
+    "priority": "High",
+    "status": "going",
+    "who": "Derek / Aria",
+    "notes": "NLC-59. My Wheels Zoe Z50 preferred (alt ID3 near Open Bar). Informal Teams office invite — no standup. Contact Make a Space Delft. Prelims before Tue on-site."
+  },
+  {
+    "id": "cd_aria_onsite_2026-09-08",
+    "title": "Aria on-site charger test (afternoon)",
+    "start": "2026-09-08",
+    "end": "2026-09-08",
+    "type": "other",
+    "location": "NL",
+    "priority": "High",
+    "status": "going",
+    "who": "Derek / Aria",
+    "notes": "NLC-59 / NLC-56. Afternoon on-site real-car ISO 15118 test after Mon prelims."
+  },
+  {
+    "id": "cd_thomas_doctor_response_2026-09-07",
+    "title": "Thomas: written response due (Spain vs company doctor)",
+    "start": "2026-09-07",
+    "end": "2026-09-07",
+    "type": "other",
+    "priority": "High",
+    "status": "going",
+    "who": "Derek",
+    "notes": "NLC-75. Written response due Monday — Spain travel as holiday vs company-doctor report. Draft on Linear; Derek sends."
+  },
+  {
     "id": "event_39",
     "title": "EV Experience",
     "start": "2026-09-24",
