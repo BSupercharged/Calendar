@@ -479,6 +479,18 @@ const CALENDAR_EVENTS = [
     "website": "https://www.congreslaadinfra.nl/en/"
   },
   {
+    "id": "cd_office_mrgreen_2026-11-01",
+    "title": "Office: Mr Green Amsterdam (Delft ends)",
+    "start": "2026-11-01",
+    "end": "2026-11-01",
+    "type": "other",
+    "location": "Mr. Green Offices, Stationsplein 9, 1012 AB Amsterdam (CS)",
+    "priority": "High",
+    "status": "going",
+    "who": "NLCAM team",
+    "notes": "NLC-5 signed. From 1 Nov 2026 ChargeDot NL office is Mr Green at Amsterdam Centraal — no more Delft / Make a Space. Hours typically 07:00–21:00. App booking for desks/rooms. Go-live ops: access, team notice, commute — see NLC-78."
+  },
+  {
     "id": "event_41",
     "title": "7th European EV Charging Infrastructure",
     "start": "2027-01-28",
