@@ -261,8 +261,22 @@
                     content += `<button class="btn btn-delete" onclick="deleteEvent('${event.id}')">Delete Event</button>`;
                 }
             } else if (event.type === 'holiday') {
-                content += `<p><strong>📅 Date:</strong> ${formatDate(event.start)}</p>`;
-                content += `<p>🇳🇱 Dutch Public Holiday</p>`;
+                content += `<p><strong>📅 Date:</strong> ${formatDate(event.start)}`;
+                if (event.start !== event.end) {
+                    content += ` - ${formatDate(event.end)}`;
+                }
+                content += '</p>';
+                if (event.location === 'China') {
+                    content += `<p>🇨🇳 China public holiday</p>`;
+                } else {
+                    content += `<p>🇳🇱 Dutch Public Holiday</p>`;
+                }
+                if (event.location) {
+                    content += `<p><strong>📍 Location:</strong> ${event.location}</p>`;
+                }
+                if (event.notes) {
+                    content += `<p><strong>Notes:</strong> ${event.notes}</p>`;
+                }
             } else if (event.type === 'birthday') {
                 content += `<p><strong>🎂 Birthday:</strong> ${formatDate(event.start)}</p>`;
                 if (event.notes) {

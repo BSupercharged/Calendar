@@ -581,5 +581,68 @@ const CALENDAR_EVENTS = [
     "start": "2026-12-26",
     "end": "2026-12-26",
     "type": "holiday"
+  },
+  {
+    "id": "cn_h_new_year",
+    "title": "China — New Year's Day",
+    "start": "2026-01-01",
+    "end": "2026-01-03",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号). Make-up work 4 Jan."
+  },
+  {
+    "id": "cn_h_spring_festival",
+    "title": "China — Spring Festival",
+    "start": "2026-02-15",
+    "end": "2026-02-23",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号). Make-up work 14 Feb + 28 Feb."
+  },
+  {
+    "id": "cn_h_qingming",
+    "title": "China — Qingming Festival",
+    "start": "2026-04-04",
+    "end": "2026-04-06",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号)."
+  },
+  {
+    "id": "cn_h_labour_day",
+    "title": "China — Labour Day",
+    "start": "2026-05-01",
+    "end": "2026-05-05",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号). Make-up work 9 May."
+  },
+  {
+    "id": "cn_h_dragon_boat",
+    "title": "China — Dragon Boat Festival",
+    "start": "2026-06-19",
+    "end": "2026-06-21",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号)."
+  },
+  {
+    "id": "cn_h_mid_autumn",
+    "title": "China — Mid-Autumn Festival",
+    "start": "2026-09-25",
+    "end": "2026-09-27",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号)."
+  },
+  {
+    "id": "cn_h_national_day",
+    "title": "China — National Day",
+    "start": "2026-10-01",
+    "end": "2026-10-07",
+    "type": "holiday",
+    "location": "China",
+    "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号). Make-up work 20 Sep + 10 Oct."
   }
 ];
