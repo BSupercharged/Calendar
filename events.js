@@ -644,5 +644,131 @@ const CALENDAR_EVENTS = [
     "type": "holiday",
     "location": "China",
     "notes": "State Council 2026 arrangement (国办发明电〔2025〕7号). Make-up work 20 Sep + 10 Oct."
+  },
+  {
+    "id": "nl_h_2027_new_year",
+    "title": "New Year's Day",
+    "start": "2027-01-01",
+    "end": "2027-01-01",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_easter_sunday",
+    "title": "Easter Sunday",
+    "start": "2027-03-28",
+    "end": "2027-03-28",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_easter_monday",
+    "title": "Easter Monday",
+    "start": "2027-03-29",
+    "end": "2027-03-29",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_kings_day",
+    "title": "King's Day",
+    "start": "2027-04-27",
+    "end": "2027-04-27",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_ascension",
+    "title": "Ascension Day",
+    "start": "2027-05-06",
+    "end": "2027-05-06",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_whit_sunday",
+    "title": "Whit Sunday",
+    "start": "2027-05-16",
+    "end": "2027-05-16",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_whit_monday",
+    "title": "Whit Monday",
+    "start": "2027-05-17",
+    "end": "2027-05-17",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_christmas",
+    "title": "Christmas Day",
+    "start": "2027-12-25",
+    "end": "2027-12-25",
+    "type": "holiday"
+  },
+  {
+    "id": "nl_h_2027_boxing",
+    "title": "Boxing Day",
+    "start": "2027-12-26",
+    "end": "2027-12-26",
+    "type": "holiday"
+  },
+  {
+    "id": "cn_h_2027_new_year",
+    "title": "China — New Year's Day",
+    "start": "2027-01-01",
+    "end": "2027-01-03",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_spring_festival",
+    "title": "China — Spring Festival",
+    "start": "2027-02-05",
+    "end": "2027-02-11",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_qingming",
+    "title": "China — Qingming Festival",
+    "start": "2027-04-03",
+    "end": "2027-04-05",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_labour_day",
+    "title": "China — Labour Day",
+    "start": "2027-05-01",
+    "end": "2027-05-05",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_dragon_boat",
+    "title": "China — Dragon Boat Festival",
+    "start": "2027-06-09",
+    "end": "2027-06-11",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_mid_autumn",
+    "title": "China — Mid-Autumn Festival",
+    "start": "2027-09-15",
+    "end": "2027-09-17",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "cn_h_2027_national_day",
+    "title": "China — National Day",
+    "start": "2027-10-01",
+    "end": "2027-10-07",
+    "type": "holiday",
+    "location": "China",
+    "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
   }
 ];
