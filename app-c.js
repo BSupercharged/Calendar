@@ -268,6 +268,8 @@
                 content += '</p>';
                 if (event.location === 'China') {
                     content += `<p>🇨🇳 China public holiday</p>`;
+                } else if (event.location === 'Singapore') {
+                    content += `<p>🇸🇬 Singapore public holiday</p>`;
                 } else {
                     content += `<p>🇳🇱 Dutch Public Holiday</p>`;
                 }
