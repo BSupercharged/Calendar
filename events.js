@@ -770,5 +770,224 @@ const CALENDAR_EVENTS = [
     "type": "holiday",
     "location": "China",
     "notes": "Provisional 2027 window (statutory festival dates fixed; State Council arrangement not yet published — expected late 2026)."
+  },
+  {
+    "id": "sg_h_2026_new_year",
+    "title": "Singapore — New Year's Day",
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2026_cny_1",
+    "title": "Singapore — Chinese New Year",
+    "start": "2026-02-17",
+    "end": "2026-02-17",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "First day."
+  },
+  {
+    "id": "sg_h_2026_cny_2",
+    "title": "Singapore — Chinese New Year",
+    "start": "2026-02-18",
+    "end": "2026-02-18",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Second day."
+  },
+  {
+    "id": "sg_h_2026_hari_raya_puasa",
+    "title": "Singapore — Hari Raya Puasa",
+    "start": "2026-03-21",
+    "end": "2026-03-21",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2026_good_friday",
+    "title": "Singapore — Good Friday",
+    "start": "2026-04-03",
+    "end": "2026-04-03",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2026_labour_day",
+    "title": "Singapore — Labour Day",
+    "start": "2026-05-01",
+    "end": "2026-05-01",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2026_hari_raya_haji",
+    "title": "Singapore — Hari Raya Haji",
+    "start": "2026-05-27",
+    "end": "2026-05-27",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2026_vesak",
+    "title": "Singapore — Vesak Day",
+    "start": "2026-05-31",
+    "end": "2026-05-31",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 1 Jun; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_vesak_in_lieu",
+    "title": "Singapore — Vesak Day (in lieu)",
+    "start": "2026-06-01",
+    "end": "2026-06-01",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 1 Jun; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_national_day",
+    "title": "Singapore — National Day",
+    "start": "2026-08-09",
+    "end": "2026-08-09",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 10 Aug; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_national_day_in_lieu",
+    "title": "Singapore — National Day (in lieu)",
+    "start": "2026-08-10",
+    "end": "2026-08-10",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 10 Aug; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_deepavali",
+    "title": "Singapore — Deepavali",
+    "start": "2026-11-08",
+    "end": "2026-11-08",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 9 Nov; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_deepavali_in_lieu",
+    "title": "Singapore — Deepavali (in lieu)",
+    "start": "2026-11-09",
+    "end": "2026-11-09",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 9 Nov; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2026_christmas",
+    "title": "Singapore — Christmas Day",
+    "start": "2026-12-25",
+    "end": "2026-12-25",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_new_year",
+    "title": "Singapore — New Year's Day",
+    "start": "2027-01-01",
+    "end": "2027-01-01",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_cny_1",
+    "title": "Singapore — Chinese New Year",
+    "start": "2027-02-06",
+    "end": "2027-02-06",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "First day."
+  },
+  {
+    "id": "sg_h_2027_cny_2",
+    "title": "Singapore — Chinese New Year",
+    "start": "2027-02-07",
+    "end": "2027-02-07",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Second day. Observed Mon 8 Feb; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2027_cny_in_lieu",
+    "title": "Singapore — Chinese New Year (in lieu)",
+    "start": "2027-02-08",
+    "end": "2027-02-08",
+    "type": "holiday",
+    "location": "Singapore",
+    "notes": "Observed Mon 8 Feb; holiday falls on Sunday."
+  },
+  {
+    "id": "sg_h_2027_hari_raya_puasa",
+    "title": "Singapore — Hari Raya Puasa",
+    "start": "2027-03-10",
+    "end": "2027-03-10",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_good_friday",
+    "title": "Singapore — Good Friday",
+    "start": "2027-03-26",
+    "end": "2027-03-26",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_labour_day",
+    "title": "Singapore — Labour Day",
+    "start": "2027-05-01",
+    "end": "2027-05-01",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_hari_raya_haji",
+    "title": "Singapore — Hari Raya Haji",
+    "start": "2027-05-17",
+    "end": "2027-05-17",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_vesak",
+    "title": "Singapore — Vesak Day",
+    "start": "2027-05-20",
+    "end": "2027-05-20",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_national_day",
+    "title": "Singapore — National Day",
+    "start": "2027-08-09",
+    "end": "2027-08-09",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_deepavali",
+    "title": "Singapore — Deepavali",
+    "start": "2027-10-28",
+    "end": "2027-10-28",
+    "type": "holiday",
+    "location": "Singapore"
+  },
+  {
+    "id": "sg_h_2027_christmas",
+    "title": "Singapore — Christmas Day",
+    "start": "2027-12-25",
+    "end": "2027-12-25",
+    "type": "holiday",
+    "location": "Singapore"
   }
 ];
