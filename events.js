@@ -989,5 +989,170 @@ const CALENDAR_EVENTS = [
     "end": "2027-12-25",
     "type": "holiday",
     "location": "Singapore"
+  },
+  {
+    "id": "be_h_2026_new_year",
+    "title": "Belgium — New Year's Day",
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_easter_monday",
+    "title": "Belgium — Easter Monday",
+    "start": "2026-04-06",
+    "end": "2026-04-06",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_labour_day",
+    "title": "Belgium — Labour Day",
+    "start": "2026-05-01",
+    "end": "2026-05-01",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_ascension",
+    "title": "Belgium — Ascension Day",
+    "start": "2026-05-14",
+    "end": "2026-05-14",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_whit_monday",
+    "title": "Belgium — Whit Monday",
+    "start": "2026-05-25",
+    "end": "2026-05-25",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_national_day",
+    "title": "Belgium — National Day",
+    "start": "2026-07-21",
+    "end": "2026-07-21",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_assumption",
+    "title": "Belgium — Assumption Day",
+    "start": "2026-08-15",
+    "end": "2026-08-15",
+    "type": "holiday",
+    "location": "Belgium",
+    "notes": "Falls on Saturday; Belgian law requires the employer to set a replacement day in the same year."
+  },
+  {
+    "id": "be_h_2026_all_saints",
+    "title": "Belgium — All Saints' Day",
+    "start": "2026-11-01",
+    "end": "2026-11-01",
+    "type": "holiday",
+    "location": "Belgium",
+    "notes": "Falls on Sunday; Belgian law requires the employer to set a replacement day in the same year."
+  },
+  {
+    "id": "be_h_2026_armistice",
+    "title": "Belgium — Armistice Day",
+    "start": "2026-11-11",
+    "end": "2026-11-11",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2026_christmas",
+    "title": "Belgium — Christmas Day",
+    "start": "2026-12-25",
+    "end": "2026-12-25",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_new_year",
+    "title": "Belgium — New Year's Day",
+    "start": "2027-01-01",
+    "end": "2027-01-01",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_easter_monday",
+    "title": "Belgium — Easter Monday",
+    "start": "2027-03-29",
+    "end": "2027-03-29",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_labour_day",
+    "title": "Belgium — Labour Day",
+    "start": "2027-05-01",
+    "end": "2027-05-01",
+    "type": "holiday",
+    "location": "Belgium",
+    "notes": "Falls on Saturday; Belgian law requires the employer to set a replacement day in the same year."
+  },
+  {
+    "id": "be_h_2027_ascension",
+    "title": "Belgium — Ascension Day",
+    "start": "2027-05-06",
+    "end": "2027-05-06",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_whit_monday",
+    "title": "Belgium — Whit Monday",
+    "start": "2027-05-17",
+    "end": "2027-05-17",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_national_day",
+    "title": "Belgium — National Day",
+    "start": "2027-07-21",
+    "end": "2027-07-21",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_assumption",
+    "title": "Belgium — Assumption Day",
+    "start": "2027-08-15",
+    "end": "2027-08-15",
+    "type": "holiday",
+    "location": "Belgium",
+    "notes": "Falls on Sunday; Belgian law requires the employer to set a replacement day in the same year."
+  },
+  {
+    "id": "be_h_2027_all_saints",
+    "title": "Belgium — All Saints' Day",
+    "start": "2027-11-01",
+    "end": "2027-11-01",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_armistice",
+    "title": "Belgium — Armistice Day",
+    "start": "2027-11-11",
+    "end": "2027-11-11",
+    "type": "holiday",
+    "location": "Belgium"
+  },
+  {
+    "id": "be_h_2027_christmas",
+    "title": "Belgium — Christmas Day",
+    "start": "2027-12-25",
+    "end": "2027-12-25",
+    "type": "holiday",
+    "location": "Belgium",
+    "notes": "Falls on Saturday; Belgian law requires the employer to set a replacement day in the same year."
   }
 ];
