@@ -807,83 +807,44 @@ body {
 .mr-green-expected {
     color: #1e7a43;
     font-weight: 600;
+}
+.mr-green-dows {
     display: inline-flex;
-    align-items: center;
     gap: 3px;
-    flex-wrap: wrap;
 }
-.mr-green-scheduled {
-    color: #4e5e74;
-    font-weight: 500;
-}
-.mr-green-expected-btn {
+.mr-green-dow {
     appearance: none;
-    background: #f3faf6;
-    border: 1px dashed #1e7a43;
+    border: 1px solid #c5ced6;
+    background: #fff;
+    color: #6b7785;
     border-radius: 4px;
-    color: inherit;
     font: inherit;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 1.4;
-    padding: 0 5px;
-    min-width: 1.6em;
+    padding: 1px 6px;
     cursor: pointer;
 }
-.mr-green-expected-btn:hover,
-.mr-green-expected-btn:focus {
-    background: #e5f6ec;
+.mr-green-dow.is-on {
+    background: #27ae60;
+    border-color: #1e7a43;
+    color: #fff;
+}
+.mr-green-dow:focus-visible {
     outline: 2px solid #27ae60;
     outline-offset: 1px;
 }
-.mr-green-expected-input {
-    width: 2.6em;
+.mr-green-reset {
+    appearance: none;
+    border: none;
+    background: none;
+    color: #4e5e74;
     font: inherit;
-    font-weight: 700;
-    color: #1e7a43;
-    text-align: center;
-    border: 1px solid #27ae60;
-    border-radius: 4px;
-    padding: 0 4px;
-    background: #fff;
-}
-.mr-green-expected-input:focus {
-    outline: 2px solid #27ae60;
-    outline-offset: 1px;
-}
-.mr-green-expected-error {
-    color: #c0392b;
-    font-size: 13px;
-    font-weight: 500;
-    margin: -4px 0 10px;
-}
-.mr-green-expected-input[aria-invalid="true"] {
-    border-color: #c0392b;
-    outline-color: #c0392b;
-}
-.mr-green-month-pick {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: #212a36;
-    background: #fff;
-    border: 1px solid #e1e6ed;
-    border-radius: 6px;
-    padding: 4px 8px;
-}
-.mr-green-month-pick select {
-    font: inherit;
-    font-weight: 600;
-    color: #212a36;
-    border: 1px solid #e1e6ed;
-    border-radius: 4px;
-    background: #fff;
-    padding: 2px 4px;
-}
-.mr-green-month.is-selected {
-    border-color: #27ae60;
-    box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.25);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0 2px;
 }
 .mr-green-months {
     display: flex;
