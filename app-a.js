@@ -106,8 +106,9 @@
         // person       : name shown on the Holiday view
         // weekdays     : 0 Sun, 1 Mon, 2 Tue, 3 Wed, 4 Thu, 5 Fri, 6 Sat
         // startDate    : inclusive YYYY-MM-DD. No office day is shown before it.
-        // expectedDays : optional. Shown as "expected office days". Omit it
-        //                when no number was given — do not invent one.
+        // expectedDays : optional default for each month ("expected office days").
+        //                Omit it when no number was given — do not invent one.
+        //                A person can override it per month from the Holiday view.
         // ═════════════════════════════════════════════════════════════
         const OFFICE_SCHEDULE = [
             { person: 'Derek',   weekdays: [1, 3, 4], startDate: '2026-12-01' },
@@ -122,10 +123,13 @@
         let showMrGreenOffice = true;
 
         function toggleMrGreenOffice() {
+            if (!commitOpenMrGreenExpected()) return;
+            mrGreenSkipBlur = true;
             showMrGreenOffice = !showMrGreenOffice;
             if (typeof renderCalendar === 'function' && currentView === 'holidays') {
                 renderCalendar();
             }
+            mrGreenSkipBlur = false;
         }
 
         const MR_GREEN_WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -188,6 +192,212 @@
         function mrGreenExpectedLabel(row) {
             if (!row || row.expectedDays == null || row.expectedDays === '') return '';
             return 'expected office days: ' + row.expectedDays;
+        }
+
+        // Per-person, per-month overrides of expected office days.
+        // Stored like other team events (type mrgreen-expected) so they sync
+        // through the Google Sheet and fall back to localStorage. The calendar
+        // grids skip this type — it is only the legend total.
+        let mrGreenEditing = null;
+        let mrGreenExpectedError = '';
+        let mrGreenSkipBlur = false;
+        let mrGreenSelectedMonth = '';
+        let mrGreenScrollToMonth = false;
+        let mrGreenSaveQueue = Promise.resolve();
+
+        function mrGreenMonthKey(year, monthIndex) {
+            return year + '-' + String(monthIndex + 1).padStart(2, '0');
+        }
+
+        function mrGreenExpectedId(person, monthKey) {
+            return 'mrgreen-expected_custom_' + person + '_' + monthKey;
+        }
+
+        function mrGreenDefaultExpected(person) {
+            const row = OFFICE_SCHEDULE.find(function (item) { return item.person === person; });
+            if (!row || row.expectedDays == null || row.expectedDays === '') return null;
+            const n = Number(row.expectedDays);
+            if (!Number.isInteger(n) || n < 0 || n > 31) return null;
+            return n;
+        }
+
+        function parseStoredExpected(notes) {
+            if (typeof notes === 'number' && Number.isInteger(notes) && notes >= 0 && notes <= 31) return notes;
+            if (typeof notes === 'string' && /^\d+$/.test(notes.trim())) {
+                const n = Number(notes.trim());
+                if (n <= 31) return n;
+            }
+            return null;
+        }
+
+        // Blank restores the default. Anything else must be a whole number 0–31.
+        function parseExpectedInput(raw) {
+            const s = String(raw == null ? '' : raw).trim();
+            if (s === '') return { ok: true, clear: true };
+            if (!/^\d+$/.test(s)) return { ok: false };
+            const n = Number(s);
+            if (!Number.isInteger(n) || n > 31) return { ok: false };
+            return { ok: true, clear: false, value: n };
+        }
+
+        function mrGreenEffectiveExpected(person, monthKey) {
+            const id = mrGreenExpectedId(person, monthKey);
+            const rows = events.filter(function (ev) {
+                return ev && ev.id === id && String(ev.type || '').trim() === 'mrgreen-expected';
+            });
+            if (rows.length) {
+                const value = parseStoredExpected(rows[rows.length - 1].notes);
+                if (value != null) return value;
+            }
+            return mrGreenDefaultExpected(person);
+        }
+
+        function mrGreenHasExpectedOverride(person, monthKey) {
+            const id = mrGreenExpectedId(person, monthKey);
+            return events.some(function (ev) {
+                return ev && ev.id === id && String(ev.type || '').trim() === 'mrgreen-expected' && parseStoredExpected(ev.notes) != null;
+            });
+        }
+
+        function writeMrGreenExpected(person, monthKey, stored) {
+            const id = mrGreenExpectedId(person, monthKey);
+            events = events.filter(function (ev) { return ev.id !== id; });
+            if (stored != null) {
+                events.push({
+                    id: id,
+                    title: person,
+                    start: monthKey + '-01',
+                    end: monthKey + '-01',
+                    type: 'mrgreen-expected',
+                    notes: String(stored)
+                });
+            }
+            saveBirthdays();
+            persistMrGreenExpected(id, person, monthKey, stored);
+        }
+
+        function persistMrGreenExpected(id, person, monthKey, stored) {
+            const record = stored == null ? null : {
+                id: id,
+                title: person,
+                start: monthKey + '-01',
+                end: monthKey + '-01',
+                type: 'mrgreen-expected',
+                notes: String(stored)
+            };
+            mrGreenSaveQueue = mrGreenSaveQueue.then(async function () {
+                // Add does not replace an existing id; delete every copy first.
+                for (let i = 0; i < 5; i++) {
+                    try {
+                        const res = await fetch(APPS_SCRIPT_URL + '?action=delete&id=' + encodeURIComponent(id));
+                        const data = await res.json().catch(function () { return null; });
+                        if (!data || data.success === false) break;
+                    } catch (err) {
+                        console.error('Failed to delete expected office days', err);
+                        break;
+                    }
+                }
+                if (record) await saveEventToSheet(record);
+            }).catch(function (err) {
+                console.error('Failed to save expected office days', err);
+            });
+        }
+
+        function showMrGreenExpectedError(input) {
+            mrGreenExpectedError = 'Use a whole number from 0 to 31, or leave blank to restore the default.';
+            let err = document.getElementById('mrGreenExpectedError');
+            if (!err) {
+                err = document.createElement('p');
+                err.id = 'mrGreenExpectedError';
+                err.className = 'mr-green-expected-error';
+                const legend = document.querySelector('.mr-green-legend');
+                if (legend) legend.insertAdjacentElement('afterend', err);
+            }
+            err.textContent = mrGreenExpectedError;
+            if (input) input.setAttribute('aria-invalid', 'true');
+        }
+
+        // Returns false when the open field is invalid and should stay open.
+        function commitOpenMrGreenExpected() {
+            const input = document.getElementById('mrGreenExpectedInput');
+            if (!input || !mrGreenEditing) return true;
+            const parsed = parseExpectedInput(input.value);
+            if (!parsed.ok) {
+                showMrGreenExpectedError(input);
+                return false;
+            }
+            const person = mrGreenEditing.person;
+            const monthKey = mrGreenEditing.monthKey;
+            mrGreenEditing = null;
+            mrGreenExpectedError = '';
+            const def = mrGreenDefaultExpected(person);
+            const stored = parsed.clear || parsed.value === def ? null : parsed.value;
+            const current = mrGreenHasExpectedOverride(person, monthKey)
+                ? mrGreenEffectiveExpected(person, monthKey)
+                : null;
+            const unchanged = stored == null ? !mrGreenHasExpectedOverride(person, monthKey) : current === stored;
+            if (!unchanged) writeMrGreenExpected(person, monthKey, stored);
+            return true;
+        }
+
+        function beginMrGreenExpectedEdit(person, monthKey) {
+            if (mrGreenEditing && mrGreenEditing.person === person && mrGreenEditing.monthKey === monthKey) return;
+            if (!commitOpenMrGreenExpected()) return;
+            mrGreenSkipBlur = true;
+            mrGreenEditing = { person: person, monthKey: monthKey };
+            mrGreenExpectedError = '';
+            if (typeof renderCalendar === 'function') renderCalendar();
+            // The replaced input blurs during render. Ignore only that blur.
+            mrGreenSkipBlur = false;
+            const input = document.getElementById('mrGreenExpectedInput');
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
+
+        function mrGreenExpectedBlur() {
+            if (mrGreenSkipBlur) return;
+            if (!commitOpenMrGreenExpected()) return;
+            mrGreenSkipBlur = true;
+            if (typeof renderCalendar === 'function' && currentView === 'holidays') renderCalendar();
+            mrGreenSkipBlur = false;
+        }
+
+        function mrGreenExpectedKeydown(event) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                mrGreenSkipBlur = true;
+                mrGreenEditing = null;
+                mrGreenExpectedError = '';
+                if (typeof renderCalendar === 'function') renderCalendar();
+                mrGreenSkipBlur = false;
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                mrGreenExpectedBlur();
+            }
+        }
+
+        function selectMrGreenMonth(monthKey) {
+            if (!commitOpenMrGreenExpected()) {
+                const sel = document.getElementById('mrGreenMonth');
+                if (sel && mrGreenSelectedMonth) sel.value = mrGreenSelectedMonth;
+                return;
+            }
+            mrGreenSkipBlur = true;
+            mrGreenSelectedMonth = monthKey;
+            mrGreenScrollToMonth = true;
+            if (typeof renderCalendar === 'function' && currentView === 'holidays') renderCalendar();
+            mrGreenSkipBlur = false;
+        }
+
+        function resolveMrGreenMonth(year, months) {
+            const keys = months.map(function (m) { return mrGreenMonthKey(year, m.month); });
+            if (mrGreenSelectedMonth && keys.indexOf(mrGreenSelectedMonth) !== -1) return mrGreenSelectedMonth;
+            const now = new Date();
+            const todayKey = mrGreenMonthKey(now.getFullYear(), now.getMonth());
+            if (keys.indexOf(todayKey) !== -1) return todayKey;
+            return keys[0] || '';
         }
 
         // Weekday rows for one calendar year, from each person's startDate.
@@ -441,6 +651,9 @@
             const dateStr = `${year}-${month}-${day}`;
 
             return events.filter(event => {
+                // Expected-day totals are legend data, not calendar entries.
+                if (String(event.type || '').trim() === 'mrgreen-expected') return false;
+                if (String(event.id || '').indexOf('mrgreen-expected_custom_') === 0) return false;
                 if (hiddenTypes[event.type]) return false;
                 return event.start <= dateStr && event.end >= dateStr;
             });
