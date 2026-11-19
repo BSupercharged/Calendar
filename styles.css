@@ -764,6 +764,111 @@ body {
     font-style: italic;
 }
 
+/* Mr Green office — Holiday view only */
+.mr-green-section {
+    margin-bottom: 28px;
+}
+.mr-green-section h2 {
+    margin-bottom: 8px;
+}
+.mr-green-intro,
+.mr-green-empty {
+    color: #4e5e74;
+    font-size: 13px;
+    margin: 0 0 12px;
+    max-width: 760px;
+    line-height: 1.45;
+}
+.mr-green-legend.legend {
+    padding: 0;
+    background: transparent;
+    border: none;
+    margin-bottom: 12px;
+}
+.mr-green-person {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #e1e6ed;
+    color: #212a36;
+    cursor: default;
+}
+.mr-green-person-name {
+    font-weight: 600;
+}
+.mr-green-person-days {
+    color: #4e5e74;
+}
+.mr-green-expected {
+    color: #1e7a43;
+    font-weight: 600;
+}
+.mr-green-months {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-start;
+}
+.mr-green-month {
+    flex: 1 1 360px;
+    max-width: 520px;
+    border: 1px solid #e1e6ed;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.mr-green-month h3 {
+    margin: 0;
+    padding: 8px 12px;
+    background: #212a36;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+.mr-green-day {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 5px 10px;
+    border-top: 1px solid #eaecf0;
+    font-size: 13px;
+}
+.mr-green-day.is-holiday {
+    background: #fff6ee;
+}
+.mr-green-day.is-empty {
+    background: #fafbfc;
+}
+.mr-green-date {
+    flex: 0 0 58px;
+    font-weight: 600;
+    color: #212a36;
+    padding-top: 2px;
+}
+.mr-green-names {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+}
+.mr-green-office-label {
+    color: #4e5e74;
+    font-size: 12px;
+    margin-right: 2px;
+}
+.mr-green-none {
+    color: #9aa3af;
+}
+.holiday-chip.office-chip {
+    background: #27ae60;
+}
+
 /* Modal */
 .modal {
     display: none;

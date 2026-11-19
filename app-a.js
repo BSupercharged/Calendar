@@ -97,6 +97,169 @@
 
         let officeConfig = loadOfficeConfig();
 
+        // ═════════════════════════════════════════════════════════════
+        // MR GREEN OFFICE — who is expected at the Amsterdam office
+        // Edit OFFICE_SCHEDULE. The Holiday view reads it; nothing else does.
+        // This is separate from the Wednesday "Office days" config above
+        // and is not written into events or localStorage.
+        //
+        // person       : name shown on the Holiday view
+        // weekdays     : 0 Sun, 1 Mon, 2 Tue, 3 Wed, 4 Thu, 5 Fri, 6 Sat
+        // startDate    : inclusive YYYY-MM-DD. No office day is shown before it.
+        // expectedDays : optional. Shown as "expected office days". Omit it
+        //                when no number was given — do not invent one.
+        // ═════════════════════════════════════════════════════════════
+        const OFFICE_SCHEDULE = [
+            { person: 'Derek',   weekdays: [1, 3, 4], startDate: '2026-12-01' },
+            { person: 'Altug',   weekdays: [1, 3, 4], startDate: '2026-12-01' },
+            { person: 'Marcel',  weekdays: [1, 4],    startDate: '2026-12-01', expectedDays: 7 },
+            { person: 'Martina', weekdays: [1, 3, 4], startDate: '2026-12-01', expectedDays: 8 },
+            { person: 'Irene',   weekdays: [1, 3],    startDate: '2026-12-01', expectedDays: 7 },
+            { person: 'Arya',    weekdays: [1, 3],    startDate: '2026-12-01', expectedDays: 9 }
+        ];
+
+        // Holiday-view only. Not persisted, so it cannot touch officeConfig.
+        let showMrGreenOffice = true;
+
+        function toggleMrGreenOffice() {
+            showMrGreenOffice = !showMrGreenOffice;
+            if (typeof renderCalendar === 'function' && currentView === 'holidays') {
+                renderCalendar();
+            }
+        }
+
+        const MR_GREEN_WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        function mrGreenEscape(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function mrGreenAttr(value) {
+            return mrGreenEscape(value).replace(/\n/g, '&#10;');
+        }
+
+        function mrGreenNameMatches(person, text) {
+            if (!text) return false;
+            const escaped = String(person).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return new RegExp('\\b' + escaped + '\\b', 'i').test(String(text));
+        }
+
+        function mrGreenEachDate(start, end, visit) {
+            const startStr = String(start || '').slice(0, 10);
+            const endStr = String(end || start || '').slice(0, 10);
+            const first = new Date(startStr + 'T00:00:00');
+            const last = new Date(endStr + 'T00:00:00');
+            if (isNaN(first.getTime()) || isNaN(last.getTime())) return;
+            for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                visit(`${y}-${m}-${day}`);
+            }
+        }
+
+        // Netherlands public holidays in events.js have no location
+        // (or location NL / Netherlands). China, Singapore, and Belgium
+        // set location, so they do not clear the Amsterdam office.
+        function isNetherlandsPublicHoliday(event) {
+            if (!event || event.type !== 'holiday') return false;
+            const loc = String(event.location || '').trim().toLowerCase();
+            return loc === '' || loc === 'nl' || loc === 'netherlands' || loc === 'the netherlands';
+        }
+
+        // Employee holidays and WFH abroad store the person in the title,
+        // which is how the holiday tables already match a name.
+        // There is no separate out-of-office type. "other" events are work
+        // (the who field lists people attending), so they are not absences.
+        function mrGreenAbsenceReason(person, event) {
+            if (!event || (event.type !== 'employee-holiday' && event.type !== 'wfh')) return null;
+            if (!mrGreenNameMatches(person, event.title)) return null;
+            return event.type === 'wfh' ? 'WFH abroad' : 'holiday';
+        }
+
+        function mrGreenWeekdayLabel(weekdays) {
+            return (weekdays || []).map(d => MR_GREEN_WEEKDAY_NAMES[d] || '').filter(Boolean).join(', ');
+        }
+
+        function mrGreenExpectedLabel(row) {
+            if (!row || row.expectedDays == null || row.expectedDays === '') return '';
+            return 'expected office days: ' + row.expectedDays;
+        }
+
+        // Weekday rows for one calendar year, from each person's startDate.
+        // Computed when the Holiday view renders — not stored as events.
+        function mrGreenDaysForYear(year) {
+            const yearStr = String(year);
+            const nlByDate = new Map();
+            events.forEach(ev => {
+                if (!isNetherlandsPublicHoliday(ev)) return;
+                mrGreenEachDate(ev.start, ev.end, dateStr => {
+                    if (dateStr.startsWith(yearStr) && !nlByDate.has(dateStr)) {
+                        nlByDate.set(dateStr, ev.title || 'Public holiday');
+                    }
+                });
+            });
+
+            const away = new Map();
+            OFFICE_SCHEDULE.forEach(row => away.set(row.person, new Map()));
+            events.forEach(ev => {
+                OFFICE_SCHEDULE.forEach(row => {
+                    const reason = mrGreenAbsenceReason(row.person, ev);
+                    if (!reason) return;
+                    mrGreenEachDate(ev.start, ev.end, dateStr => {
+                        if (!dateStr.startsWith(yearStr)) return;
+                        if (!away.get(row.person).has(dateStr)) {
+                            away.get(row.person).set(dateStr, reason);
+                        }
+                    });
+                });
+            });
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const months = [];
+            for (let m = 0; m < 12; m++) {
+                const dim = new Date(year, m + 1, 0).getDate();
+                const days = [];
+                for (let day = 1; day <= dim; day++) {
+                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const dow = new Date(year, m, day).getDay();
+                    if (dow === 0 || dow === 6) continue;
+                    if (!OFFICE_SCHEDULE.some(row => dateStr >= row.startDate)) continue;
+
+                    const holidayTitle = nlByDate.get(dateStr) || null;
+                    const people = [];
+                    const absent = [];
+                    if (!holidayTitle) {
+                        OFFICE_SCHEDULE.forEach(row => {
+                            if (dateStr < row.startDate) return;
+                            if (!(row.weekdays || []).includes(dow)) return;
+                            const reason = away.get(row.person).get(dateStr);
+                            if (reason) {
+                                absent.push({ person: row.person, reason: reason });
+                                return;
+                            }
+                            people.push(row);
+                        });
+                    }
+                    days.push({
+                        dateStr: dateStr,
+                        dow: dow,
+                        day: day,
+                        holidayTitle: holidayTitle,
+                        people: people,
+                        absent: absent
+                    });
+                }
+                if (days.length) months.push({ month: m, name: monthNames[m], days: days });
+            }
+            return months;
+        }
+
         // Generate office days from config
         function generateOfficeDays() {
             const cfg = officeConfig;
