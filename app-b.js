@@ -1,20 +1,66 @@
+        function renderMrGreenExpectedControl(person, monthKey, monthLabel, scheduled) {
+            const value = mrGreenEffectiveExpected(person, monthKey);
+            const def = mrGreenDefaultExpected(person);
+            const editing = mrGreenEditing && mrGreenEditing.person === person && mrGreenEditing.monthKey === monthKey;
+            const shown = value == null ? '—' : String(value);
+            let html = `<span class="mr-green-expected">expected `;
+            if (editing) {
+                const placeholder = def == null ? '' : String(def);
+                html += `<input id="mrGreenExpectedInput" class="mr-green-expected-input" inputmode="numeric" maxlength="2" autocomplete="off" `;
+                html += `value="${value == null ? '' : value}" placeholder="${mrGreenEscape(placeholder)}" `;
+                html += `aria-label="Expected office days for ${mrGreenEscape(person)} in ${mrGreenEscape(monthLabel)}" `;
+                html += `onkeydown="mrGreenExpectedKeydown(event)" onblur="mrGreenExpectedBlur()">`;
+            } else {
+                const hint = def == null
+                    ? 'Edit expected office days for ' + monthLabel + '. Leave blank to clear.'
+                    : 'Edit expected office days for ' + monthLabel + '. Leave blank to restore the default (' + def + ').';
+                html += `<button type="button" class="mr-green-expected-btn" `;
+                html += `onmousedown="event.preventDefault(); beginMrGreenExpectedEdit('${person}', '${monthKey}')" `;
+                html += `title="${mrGreenAttr(hint)}">${shown}</button>`;
+            }
+            html += ` <span class="mr-green-scheduled">/ scheduled ${scheduled}</span></span>`;
+            return html;
+        }
+
         function renderMrGreenOfficeSection(year) {
+            const months = mrGreenDaysForYear(year);
+            const selectedKey = resolveMrGreenMonth(year, months);
+            mrGreenSelectedMonth = selectedKey;
+            const selected = months.find(m => mrGreenMonthKey(year, m.month) === selectedKey) || null;
+            const selectedLabel = selected ? `${selected.name} ${year}` : '';
+
             let html = `<div class="mr-green-section">`;
             html += `<h2>🏢 Mr Green office — ${year}</h2>`;
-            html += `<p class="mr-green-intro">Who is expected at Mr Green, Amsterdam. Weekdays from 1 Dec 2026. A Netherlands public holiday is shown instead of names. Anyone with a holiday or WFH abroad booked in their name is left off that day.</p>`;
+            html += `<p class="mr-green-intro">Who is expected at Mr Green, Amsterdam. Weekdays from 1 Dec 2026. The expected total next to each name is for the month shown — click it to edit. A Netherlands public holiday is shown instead of names. Anyone with a holiday or WFH abroad booked in their name is left off that day.</p>`;
             html += `<div class="legend mr-green-legend">`;
-            html += `<div class="legend-item${showMrGreenOffice ? '' : ' dimmed'}" onclick="toggleMrGreenOffice()" title="Click to hide or show">`;
+            html += `<div class="legend-item${showMrGreenOffice ? '' : ' dimmed'}" onmousedown="event.preventDefault(); toggleMrGreenOffice()" title="Click to hide or show">`;
             html += `<div class="legend-color" style="background:#27ae60;"></div><span>Mr Green office</span></div>`;
+
+            if (months.length) {
+                html += `<label class="mr-green-month-pick"><span>Month</span>`;
+                html += `<select id="mrGreenMonth" onchange="selectMrGreenMonth(this.value)">`;
+                months.forEach(month => {
+                    const key = mrGreenMonthKey(year, month.month);
+                    html += `<option value="${key}"${key === selectedKey ? ' selected' : ''}>${month.name} ${year}</option>`;
+                });
+                html += `</select></label>`;
+            }
 
             OFFICE_SCHEDULE.forEach(row => {
                 const days = mrGreenWeekdayLabel(row.weekdays);
-                const expected = mrGreenExpectedLabel(row);
-                const tip = expected ? `${row.person}\n${days}\n${expected}` : `${row.person}\n${days}`;
-                html += `<div class="mr-green-person" data-tooltip="${mrGreenAttr(tip)}">`;
-                html += `<span class="mr-green-person-name">${mrGreenEscape(row.person)}</span>`;
-                html += `<span class="mr-green-person-days">${mrGreenEscape(days)}</span>`;
-                if (expected) {
-                    html += `<span class="mr-green-expected">${mrGreenEscape(expected)}</span>`;
+                const phrase = selected ? (function () {
+                    const n = mrGreenEffectiveExpected(row.person, selectedKey);
+                    return n == null ? '' : 'expected office days: ' + n;
+                })() : mrGreenExpectedLabel(row);
+                const tip = phrase ? `${row.person}\n${days}\n${phrase}` : `${row.person}\n${days}`;
+                const scheduled = selected
+                    ? selected.days.filter(d => d.people.some(p => p.person === row.person)).length
+                    : 0;
+                html += `<div class="mr-green-person">`;
+                html += `<span class="mr-green-person-name" data-tooltip="${mrGreenAttr(tip)}">${mrGreenEscape(row.person)}</span>`;
+                html += `<span class="mr-green-person-days" data-tooltip="${mrGreenAttr(tip)}">${mrGreenEscape(days)}</span>`;
+                if (selected) {
+                    html += renderMrGreenExpectedControl(row.person, selectedKey, selectedLabel, scheduled);
                 }
                 html += `</div>`;
             });
@@ -25,7 +71,6 @@
                 return html;
             }
 
-            const months = mrGreenDaysForYear(year);
             if (months.length === 0) {
                 html += `<p class="mr-green-empty">No Mr Green office days in ${year}. The schedule starts 1 Dec 2026.</p>`;
                 html += `</div>`;
@@ -34,7 +79,9 @@
 
             html += `<div class="mr-green-months">`;
             months.forEach(month => {
-                html += `<section class="mr-green-month"><h3>${month.name}</h3>`;
+                const key = mrGreenMonthKey(year, month.month);
+                const mark = months.length > 1 && key === selectedKey ? ' is-selected' : '';
+                html += `<section class="mr-green-month${mark}"><h3>${month.name}</h3>`;
                 month.days.forEach(d => {
                     const label = `${MR_GREEN_WEEKDAY_NAMES[d.dow]} ${d.day}`;
                     let cls = 'mr-green-day';
@@ -54,8 +101,9 @@
                     } else {
                         d.people.forEach(row => {
                             const days = mrGreenWeekdayLabel(row.weekdays);
-                            const expected = mrGreenExpectedLabel(row);
-                            const chipTip = expected ? `${row.person}\n${days}\n${expected}` : `${row.person}\n${days}`;
+                            const n = mrGreenEffectiveExpected(row.person, key);
+                            const phrase = n == null ? '' : 'expected office days: ' + n;
+                            const chipTip = phrase ? `${row.person}\n${days}\n${phrase}` : `${row.person}\n${days}`;
                             html += `<span class="holiday-chip office-chip" data-tooltip="${mrGreenAttr(chipTip)}">${mrGreenEscape(row.person)}</span>`;
                         });
                     }
@@ -346,6 +394,14 @@
             html += `</div>`;
             document.getElementById('calendarContent').innerHTML = html;
             document.getElementById('currentPeriod').textContent = currentYear;
+
+            if (mrGreenScrollToMonth) {
+                mrGreenScrollToMonth = false;
+                requestAnimationFrame(() => {
+                    const selectedMonth = document.querySelector('.mr-green-month.is-selected');
+                    if (selectedMonth) selectedMonth.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+            }
 
             // Scroll holiday + WFH week tables to current week (show future, not Jan)
             if (isCurrentYear) {
