@@ -15,12 +15,74 @@
             return html;
         }
 
-        function renderMrGreenOfficeSection(year) {
-            const months = mrGreenDaysForYear(year);
+        function renderMrGreenMonthCalendar(ctx, year, month) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const dowNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const first = new Date(year, month, 1);
+            let lead = first.getDay() - 1;
+            if (lead < 0) lead = 6;
+            const dim = new Date(year, month + 1, 0).getDate();
+            const prevDim = new Date(year, month, 0).getDate();
+            const today = mrGreenToday();
 
-            let html = `<div class="mr-green-section">`;
-            html += `<h2>🏢 Mr Green office — ${year}</h2>`;
-            html += `<p class="mr-green-intro">Who is expected at Mr Green, Amsterdam. Weekdays from 1 Dec 2026. Click a day to change that person's office days from today onward. A Netherlands public holiday is shown instead of names. Anyone with a holiday or WFH abroad booked in their name is left off that day.</p>`;
+            let html = `<section class="office-month"><h3>${monthNames[month]}</h3>`;
+            html += `<div class="office-cal">`;
+            dowNames.forEach(name => {
+                html += `<div class="office-cal-dow">${name}</div>`;
+            });
+
+            for (let i = 0; i < lead; i++) {
+                const dayNum = prevDim - lead + 1 + i;
+                html += `<div class="office-day is-outside"><div class="office-day-num">${dayNum}</div></div>`;
+            }
+
+            for (let day = 1; day <= dim; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const info = mrGreenDescribeDay(ctx, dateStr);
+                let cls = 'office-day';
+                if (info.weekend) cls += ' is-weekend';
+                if (info.holidayTitle) cls += ' is-holiday';
+                if (dateStr === today) cls += ' is-today';
+                const tip = info.absent.length
+                    ? 'Not in office: ' + info.absent.map(a => `${a.person} (${a.reason})`).join(', ')
+                    : '';
+                html += `<div class="${cls}"${tip ? ` data-tooltip="${mrGreenAttr(tip)}"` : ''}>`;
+                html += `<div class="office-day-num">${day}</div>`;
+                if (info.holidayTitle) {
+                    html += `<div class="mr-green-names"><span class="holiday-chip public-holiday">${mrGreenEscape(info.holidayTitle)}</span></div>`;
+                } else if (!info.weekend && info.scheduleOpen) {
+                    html += `<div class="mr-green-names"><span class="mr-green-office-label">Office:</span>`;
+                    if (info.people.length === 0) {
+                        html += `<span class="mr-green-none">—</span>`;
+                    } else {
+                        info.people.forEach(row => {
+                            const days = mrGreenWeekdayLabel(row.weekdays);
+                            const phrase = row.expectedDays == null || row.expectedDays === ''
+                                ? ''
+                                : 'expected office days: ' + row.expectedDays;
+                            const chipTip = phrase ? `${row.person}\n${days}\n${phrase}` : `${row.person}\n${days}`;
+                            html += `<span class="holiday-chip office-chip" data-tooltip="${mrGreenAttr(chipTip)}">${mrGreenEscape(row.person)}</span>`;
+                        });
+                    }
+                    html += `</div>`;
+                }
+                html += `</div>`;
+            }
+
+            const used = lead + dim;
+            const trail = (7 - (used % 7)) % 7;
+            for (let day = 1; day <= trail; day++) {
+                html += `<div class="office-day is-outside"><div class="office-day-num">${day}</div></div>`;
+            }
+            html += `</div></section>`;
+            return html;
+        }
+
+        function renderOfficeView() {
+            let html = `<div class="holiday-view office-view">`;
+            html += `<h2>🏢 Mr Green office — ${currentYear}</h2>`;
+            html += `<p class="mr-green-intro">Who is expected at Mr Green, Amsterdam. Weekdays from 1 Dec 2026. Click a weekday to change that person's office days from today onward. A Netherlands public holiday is shown instead of names. Anyone with a holiday or WFH abroad booked in their name is left off that day.</p>`;
             html += `<div class="legend mr-green-legend">`;
             html += `<div class="legend-item${showMrGreenOffice ? '' : ' dimmed'}" onclick="toggleMrGreenOffice()" title="Click to hide or show">`;
             html += `<div class="legend-color" style="background:#27ae60;"></div><span>Mr Green office</span></div>`;
@@ -39,52 +101,25 @@
             });
             html += `</div>`;
 
-            if (!showMrGreenOffice) {
-                html += `</div>`;
-                return html;
+            if (showMrGreenOffice) {
+                const ctx = mrGreenYearContext(currentYear);
+                const blocks = [];
+                for (let month = 0; month < 12; month++) {
+                    const dim = new Date(currentYear, month + 1, 0).getDate();
+                    const monthEnd = `${currentYear}-${String(month + 1).padStart(2, '0')}-${String(dim).padStart(2, '0')}`;
+                    if (!OFFICE_SCHEDULE.some(row => monthEnd >= row.startDate)) continue;
+                    blocks.push(renderMrGreenMonthCalendar(ctx, currentYear, month));
+                }
+                if (blocks.length === 0) {
+                    html += `<p class="mr-green-empty">No Mr Green office days in ${currentYear}. The schedule starts 1 Dec 2026.</p>`;
+                } else {
+                    html += `<div class="office-months">${blocks.join('')}</div>`;
+                }
             }
 
-            if (months.length === 0) {
-                html += `<p class="mr-green-empty">No Mr Green office days in ${year}. The schedule starts 1 Dec 2026.</p>`;
-                html += `</div>`;
-                return html;
-            }
-
-            html += `<div class="mr-green-months">`;
-            months.forEach(month => {
-                html += `<section class="mr-green-month"><h3>${month.name}</h3>`;
-                month.days.forEach(d => {
-                    const label = `${MR_GREEN_WEEKDAY_NAMES[d.dow]} ${d.day}`;
-                    let cls = 'mr-green-day';
-                    if (d.holidayTitle) cls += ' is-holiday';
-                    else if (d.people.length === 0) cls += ' is-empty';
-                    const tip = d.absent.length
-                        ? 'Not in office: ' + d.absent.map(a => `${a.person} (${a.reason})`).join(', ')
-                        : '';
-                    html += `<div class="${cls}"${tip ? ` data-tooltip="${mrGreenAttr(tip)}"` : ''}>`;
-                    html += `<div class="mr-green-date">${label}</div>`;
-                    html += `<div class="mr-green-names"><span class="mr-green-office-label">Office:</span>`;
-                    if (d.holidayTitle) {
-                        html += `<span class="mr-green-none">—</span>`;
-                        html += `<span class="holiday-chip public-holiday">${mrGreenEscape(d.holidayTitle)}</span>`;
-                    } else if (d.people.length === 0) {
-                        html += `<span class="mr-green-none">—</span>`;
-                    } else {
-                        d.people.forEach(row => {
-                            const days = mrGreenWeekdayLabel(row.weekdays);
-                            const phrase = row.expectedDays == null || row.expectedDays === ''
-                                ? ''
-                                : 'expected office days: ' + row.expectedDays;
-                            const chipTip = phrase ? `${row.person}\n${days}\n${phrase}` : `${row.person}\n${days}`;
-                            html += `<span class="holiday-chip office-chip" data-tooltip="${mrGreenAttr(chipTip)}">${mrGreenEscape(row.person)}</span>`;
-                        });
-                    }
-                    html += `</div></div>`;
-                });
-                html += `</section>`;
-            });
-            html += `</div></div>`;
-            return html;
+            html += `</div>`;
+            document.getElementById('calendarContent').innerHTML = html;
+            document.getElementById('currentPeriod').textContent = currentYear;
         }
 
         function renderHolidayView() {
@@ -123,13 +158,16 @@
                 return days;
             }
 
-            // Build public holiday date set for fast lookup
+            // Working days for the NL team: not Saturday, Sunday, or a Dutch public holiday.
+            // China, Singapore, and Belgium holidays stay on the reference table below.
+            // They are not days off for this team. People have no country field, so every
+            // person in this view uses the Netherlands list (isNetherlandsPublicHoliday).
             const pubHolidayDates = new Set();
             pubHolidays.forEach(ph => {
+                if (!isNetherlandsPublicHoliday(ph)) return;
                 getDaysInRange(ph.start, ph.end).forEach(d => pubHolidayDates.add(d));
             });
 
-            // True if a date is a working day (not weekend, not public holiday)
             function isWorkingDay(dateStr) {
                 const dow = new Date(dateStr + 'T00:00:00').getDay();
                 return dow !== 0 && dow !== 6 && !pubHolidayDates.has(dateStr);
@@ -202,7 +240,6 @@
             const isCurrentYear = currentYear === _todayLocal.getFullYear();
 
             let html = `<div class="holiday-view">`;
-            html += renderMrGreenOfficeSection(currentYear);
             html += `<h2>🏖️ Employee Holiday Overview — ${currentYear}</h2>`;
 
             if (people.length === 0 && empHolidays.length === 0) {
@@ -271,7 +308,8 @@
                             let phNote = '';
                             if (phThisWeek.length > 0) {
                                 const phStr = phThisWeek.map(d => {
-                                    const phEvent = pubHolidays.find(ph => ph.start <= d && ph.end >= d);
+                                    const phEvent = pubHolidays.find(ph =>
+                                        isNetherlandsPublicHoliday(ph) && ph.start <= d && ph.end >= d);
                                     return phEvent
                                         ? `${phEvent.title} — ${ordinalDate(d)}`
                                         : ordinalDate(d);
@@ -322,6 +360,10 @@
                             });
                             const cnt = coveredDays.size;
                             totalDays += cnt;
+                            const phThisWeek = wk.days.filter(d =>
+                                pubHolidayDates.has(d) &&
+                                personWfh.some(ev => d >= ev.start && d <= ev.end)
+                            );
                             if (cnt === 0) {
                                 const cwBg = (isCurrentYear && wk.w === currentISOWeek) ? ' style="background:rgba(255,215,0,0.18);"' : '';
                                 html += `<td class="week-cell"${cwBg}></td>`;
@@ -330,9 +372,21 @@
                                 const dateLabel = sortedDays.length > 1
                                     ? `${ordinalDate(sortedDays[0])} - ${ordinalDate(sortedDays[sortedDays.length - 1])}`
                                     : ordinalDate(sortedDays[0]);
-                                const tooltip = `${person} WFH — ${dateLabel}`;
+                                let phNote = '';
+                                if (phThisWeek.length > 0) {
+                                    const phStr = phThisWeek.map(d => {
+                                        const phEvent = pubHolidays.find(ph =>
+                                            isNetherlandsPublicHoliday(ph) && ph.start <= d && ph.end >= d);
+                                        return phEvent
+                                            ? `${phEvent.title} — ${ordinalDate(d)}`
+                                            : ordinalDate(d);
+                                    }).join(', ');
+                                    phNote = ` excl. public holiday: ${phStr}`;
+                                }
+                                const tooltip = `${person} WFH — ${dateLabel}${phNote}`;
                                 const alpha = (0.35 + Math.min(cnt / 5, 1) * 0.65).toFixed(2);
-                                html += `<td class="week-cell holiday-week" style="background:rgba(23,162,184,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
+                                const phClass = phThisWeek.length > 0 ? ' ph-overlap' : '';
+                                html += `<td class="week-cell holiday-week${phClass}" style="background:rgba(23,162,184,${alpha})" data-tooltip="${tooltip.replace(/"/g, '&quot;')}">${cnt}</td>`;
                             }
                         });
                         html += `<td class="total-days-cell">${totalDays}</td></tr>`;

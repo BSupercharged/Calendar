@@ -5,6 +5,8 @@
                 renderMonthView();
             } else if (currentView === 'holidays') {
                 renderHolidayView();
+            } else if (currentView === 'office') {
+                renderOfficeView();
             } else {
                 renderWeekView();
             }

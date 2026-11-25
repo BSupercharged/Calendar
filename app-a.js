@@ -99,16 +99,16 @@
 
         // ═════════════════════════════════════════════════════════════
         // MR GREEN OFFICE — who is expected at the Amsterdam office
-        // Edit OFFICE_SCHEDULE for the defaults. The Holiday view can change
+        // Edit OFFICE_SCHEDULE for the defaults. The Office view can change
         // weekdays from today onward; those changes are saved with team events.
         // This is separate from the Wednesday "Office days" config above.
         //
-        // person       : name shown on the Holiday view
+        // person       : name shown on the Office view
         // weekdays     : 0 Sun, 1 Mon, 2 Tue, 3 Wed, 4 Thu, 5 Fri, 6 Sat
         // startDate    : inclusive YYYY-MM-DD. No office day is shown before it.
         // expectedDays : optional, shown read-only as "expected office days".
         //                Omit it when no number was given — do not invent one.
-        // Weekday changes made in the Holiday view are saved separately.
+        // Weekday changes made in the Office view are saved separately.
         // They apply from the day they are saved; earlier days keep these defaults.
         // ═════════════════════════════════════════════════════════════
         const OFFICE_SCHEDULE = [
@@ -120,12 +120,12 @@
             { person: 'Arya',    weekdays: [1, 3],    startDate: '2026-12-01', expectedDays: 9 }
         ];
 
-        // Holiday-view only. Not persisted, so it cannot touch officeConfig.
+        // Office view only. Not persisted, so it cannot touch officeConfig.
         let showMrGreenOffice = true;
 
         function toggleMrGreenOffice() {
             showMrGreenOffice = !showMrGreenOffice;
-            if (typeof renderCalendar === 'function' && currentView === 'holidays') {
+            if (typeof renderCalendar === 'function' && currentView === 'office') {
                 renderCalendar();
             }
         }
@@ -192,7 +192,7 @@
             return 'expected office days: ' + row.expectedDays;
         }
 
-        // Weekday overrides made in the Holiday view.
+        // Weekday overrides made in the Office view.
         // Saved like other team events (type mrgreen-weekdays): Google Sheet,
         // with the same localStorage cache. Calendar grids skip this type.
         // notes: "1,3|2026-11-19" means those weekdays from that date onward.
@@ -327,18 +327,18 @@
                 : current.filter(function (day) { return day !== dow; });
             if (mrGreenSameDays(next, row.weekdays)) writeMrGreenWeekdays(person, null);
             else writeMrGreenWeekdays(person, { weekdays: next, from: mrGreenToday() });
-            if (typeof renderCalendar === 'function' && currentView === 'holidays') renderCalendar();
+            if (typeof renderCalendar === 'function' && currentView === 'office') renderCalendar();
         }
 
         function resetMrGreenWeekdays(person) {
             if (!mrGreenWeekdayOverride(person)) return;
             writeMrGreenWeekdays(person, null);
-            if (typeof renderCalendar === 'function' && currentView === 'holidays') renderCalendar();
+            if (typeof renderCalendar === 'function' && currentView === 'office') renderCalendar();
         }
 
-        // Weekday rows for one calendar year, from each person's startDate.
-        // Computed when the Holiday view renders — not stored as events.
-        function mrGreenDaysForYear(year) {
+        // Dutch public holidays and employee absences for one calendar year.
+        // Used by the Office view. Not stored as events.
+        function mrGreenYearContext(year) {
             const yearStr = String(year);
             const nlByDate = new Map();
             events.forEach(ev => {
@@ -364,51 +364,50 @@
                     });
                 });
             });
+            return { nlByDate: nlByDate, away: away };
+        }
 
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
-            const months = [];
-            for (let m = 0; m < 12; m++) {
-                const dim = new Date(year, m + 1, 0).getDate();
-                const days = [];
-                for (let day = 1; day <= dim; day++) {
-                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const dow = new Date(year, m, day).getDay();
-                    if (dow === 0 || dow === 6) continue;
-                    if (!OFFICE_SCHEDULE.some(row => dateStr >= row.startDate)) continue;
-
-                    const holidayTitle = nlByDate.get(dateStr) || null;
-                    const people = [];
-                    const absent = [];
-                    if (!holidayTitle) {
-                        OFFICE_SCHEDULE.forEach(row => {
-                            if (dateStr < row.startDate) return;
-                            const weekdays = mrGreenWeekdaysOn(row.person, dateStr);
-                            if (!(weekdays || []).includes(dow)) return;
-                            const reason = away.get(row.person).get(dateStr);
-                            if (reason) {
-                                absent.push({ person: row.person, reason: reason });
-                                return;
-                            }
-                            people.push({
-                                person: row.person,
-                                weekdays: weekdays,
-                                expectedDays: row.expectedDays
-                            });
-                        });
+        // One calendar date for the Office view.
+        // Weekends are not office days. A Dutch public holiday replaces names.
+        // Employee holiday and WFH abroad leave that person off the day.
+        function mrGreenDescribeDay(ctx, dateStr) {
+            const parts = dateStr.split('-').map(Number);
+            const year = parts[0];
+            const monthIndex = parts[1] - 1;
+            const day = parts[2];
+            const dow = new Date(year, monthIndex, day).getDay();
+            const holidayTitle = (ctx.nlByDate && ctx.nlByDate.get(dateStr)) || null;
+            const weekend = dow === 0 || dow === 6;
+            const scheduleOpen = OFFICE_SCHEDULE.some(function (row) { return dateStr >= row.startDate; });
+            const people = [];
+            const absent = [];
+            if (!weekend && scheduleOpen && !holidayTitle) {
+                OFFICE_SCHEDULE.forEach(row => {
+                    if (dateStr < row.startDate) return;
+                    const weekdays = mrGreenWeekdaysOn(row.person, dateStr);
+                    if (!(weekdays || []).includes(dow)) return;
+                    const reason = ctx.away.get(row.person).get(dateStr);
+                    if (reason) {
+                        absent.push({ person: row.person, reason: reason });
+                        return;
                     }
-                    days.push({
-                        dateStr: dateStr,
-                        dow: dow,
-                        day: day,
-                        holidayTitle: holidayTitle,
-                        people: people,
-                        absent: absent
+                    people.push({
+                        person: row.person,
+                        weekdays: weekdays,
+                        expectedDays: row.expectedDays
                     });
-                }
-                if (days.length) months.push({ month: m, name: monthNames[m], days: days });
+                });
             }
-            return months;
+            return {
+                dateStr: dateStr,
+                dow: dow,
+                day: day,
+                holidayTitle: holidayTitle,
+                people: people,
+                absent: absent,
+                weekend: weekend,
+                scheduleOpen: scheduleOpen
+            };
         }
 
         // Generate office days from config
@@ -535,7 +534,7 @@
         }
 
         function navigate(direction) {
-            if (currentView === 'year' || currentView === 'holidays') {
+            if (currentView === 'year' || currentView === 'holidays' || currentView === 'office') {
                 currentYear += direction;
             } else if (currentView === 'month') {
                 currentMonth += direction;
