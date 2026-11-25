@@ -583,12 +583,32 @@
             renderCalendar();
         }
 
+        // Leave and WFH (including WFH abroad) count and render on working days only.
+        // Saturday, Sunday, and Dutch public holidays do not get that colour or name.
+        // Public holidays keep their own styling. Other event types still render.
+        function isDutchPublicHolidayDate(dateStr) {
+            return events.some(function (ev) {
+                if (!isNetherlandsPublicHoliday(ev)) return false;
+                const start = String(ev.start || '').slice(0, 10);
+                const end = String(ev.end || ev.start || '').slice(0, 10);
+                return start <= dateStr && end >= dateStr;
+            });
+        }
+
+        function leaveRendersOn(dateStr) {
+            const dow = new Date(dateStr + 'T00:00:00').getDay();
+            if (dow === 0 || dow === 6) return false;
+            if (isDutchPublicHolidayDate(dateStr)) return false;
+            return true;
+        }
+
         function getEventsForDate(date) {
             // Normalize to local date string for comparison (YYYY-MM-DD)
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
+            const showLeave = leaveRendersOn(dateStr);
 
             return events.filter(event => {
                 // Legend data, not calendar entries.
@@ -597,6 +617,7 @@
                 if (eventType === 'mrgreen-expected' || eventType === 'mrgreen-weekdays') return false;
                 if (eventId.indexOf('mrgreen-expected_custom_') === 0 || eventId.indexOf('mrgreen-weekdays_custom_') === 0) return false;
                 if (hiddenTypes[event.type]) return false;
+                if (!showLeave && (eventType === 'employee-holiday' || eventType === 'wfh')) return false;
                 return event.start <= dateStr && event.end >= dateStr;
             });
         }
